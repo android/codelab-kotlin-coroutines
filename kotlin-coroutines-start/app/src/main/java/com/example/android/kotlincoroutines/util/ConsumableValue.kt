@@ -19,20 +19,21 @@ package com.example.android.kotlincoroutines.util
 import android.support.annotation.UiThread
 
 /**
- * Event class for passing through LiveData. Events will only be handled once, unless the handler
- * explicitly calls [markUnhandled].
+ * Value class for passing through LiveData. Values will only be consumed once, unless the consumer
+ * explicitly calls [release].
  *
  * For background see this blog post:
  * https://medium.com/androiddevelopers/livedata-with-snackbar-navigation-and-other-events-the-singleliveevent-case-ac2622673150
  */
-class ConsumableEvent<T>(private val data: T) {
-    private var consumed = false
+class ConsumableValue<T>(private val data: T) {
+    var consumed = false
+        private set
 
     /**
-     * Process this event, will only be called once
+     * Process this value, block will only be called once.
      */
     @UiThread
-    fun handle(block: ConsumableEvent<T>.(T) -> Unit) {
+    fun consume(block: ConsumableValue<T>.(T) -> Unit) {
         val wasConsumed = consumed
         consumed = true
         if (!wasConsumed) {
@@ -45,7 +46,7 @@ class ConsumableEvent<T>(private val data: T) {
      * the event right now. It will mark the event as available to be handled by another handler.
      */
     @UiThread
-    fun ConsumableEvent<T>.markUnhandled() {
+    fun ConsumableValue<T>.release() {
         consumed = false
     }
 }

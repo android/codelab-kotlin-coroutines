@@ -30,6 +30,6 @@ interface MainNetwork {
 /**
  * Default implementation of MainNetwork.
  */
-object MainNetworkImpl: MainNetwork {
+object MainNetworkImpl : MainNetwork {
     override fun fetchNewWelcome() = fakeNetworkLibrary(FAKE_RESULTS)
 }

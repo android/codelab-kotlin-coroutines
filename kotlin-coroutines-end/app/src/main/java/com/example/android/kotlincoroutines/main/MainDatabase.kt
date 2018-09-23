@@ -39,7 +39,7 @@ data class Title constructor(val title: String, @PrimaryKey val id: Int = 0)
  */
 @Dao
 interface TitleDao {
-    @Insert(onConflict= OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertTitle(title: Title)
 
     @Query("select * from Title where id = 0")
@@ -50,7 +50,7 @@ interface TitleDao {
  * TitleDatabase provides a reference to the dao to repositories
  */
 @Database(entities = [Title::class], version = 1, exportSchema = false)
-abstract class TitleDatabase: RoomDatabase() {
+abstract class TitleDatabase : RoomDatabase() {
     abstract val titleDao: TitleDao
 }
 
@@ -66,7 +66,8 @@ fun getDatabase(context: Context): TitleDatabase {
                 .databaseBuilder(
                         context.applicationContext,
                         TitleDatabase::class.java,
-                        "titles_db")
+                        "titles_db"
+                )
                 .fallbackToDestructiveMigration()
                 .build()
         }

@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit
 /**
  * Override application to setup background work via [WorkManager]
  */
-class KotlinCoroutinesApp: Application() {
+class KotlinCoroutinesApp : Application() {
     /**
      * onCreate is called before the first screen is shown to the user.
      *

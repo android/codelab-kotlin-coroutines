@@ -20,7 +20,7 @@ import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Transformations
 import android.arch.lifecycle.ViewModel
 import com.example.android.kotlincoroutines.util.BACKGROUND
-import com.example.android.kotlincoroutines.util.ConsumableEvent
+import com.example.android.kotlincoroutines.util.ConsumableValue
 
 /**
  * MainViewModel designed to store and manage UI-related data in a lifecycle conscious way. This
@@ -28,7 +28,7 @@ import com.example.android.kotlincoroutines.util.ConsumableEvent
  * work such as fetching network results can continue through configuration changes and deliver
  * results after the new Fragment or Activity is available.
  */
-class MainViewModel: ViewModel() {
+class MainViewModel : ViewModel() {
 
     /**
      * Request a snackbar to display a string.
@@ -45,8 +45,7 @@ class MainViewModel: ViewModel() {
      *
      * Use Transformations.map to wrap each string sent to _snackbar in a ConsumableEvent.
      */
-    val snackbar = Transformations.map(_snackBar) { ConsumableEvent(it) }
-
+    val snackbar = Transformations.map(_snackBar) { ConsumableValue(it) }
 
     // TODO: Add parentJob and uiScope here
 

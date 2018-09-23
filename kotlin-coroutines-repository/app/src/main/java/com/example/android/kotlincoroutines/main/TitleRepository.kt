@@ -18,14 +18,17 @@ package com.example.android.kotlincoroutines.main
 
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.Transformations
-import android.support.annotation.WorkerThread
 import com.example.android.kotlincoroutines.main.TitleRepository.RefreshState.Complete
 import com.example.android.kotlincoroutines.main.TitleRepository.RefreshState.Error
 import com.example.android.kotlincoroutines.main.TitleRepository.RefreshState.Loading
 import com.example.android.kotlincoroutines.util.BACKGROUND
+import com.example.android.kotlincoroutines.util.FakeNetworkCall
 import com.example.android.kotlincoroutines.util.FakeNetworkError
 import com.example.android.kotlincoroutines.util.FakeNetworkSuccess
 import kotlin.LazyThreadSafetyMode.NONE
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 /**
  * TitleRepository provides an interface to fetch a title or request a new one be generated.
@@ -62,25 +65,24 @@ class TitleRepository(private val network: MainNetwork, private val titleDao: Ti
      * @param onStateChanged callback called when state changes to Loading, Complete, or Error
      */
     // TODO: Reimplement with coroutines and remove state listener
-    @WorkerThread
     fun refreshTitle(onStateChanged: TitleStateListener) {
         onStateChanged(Loading)
         val call = network.fetchNewWelcome()
-        call.addOnResultListener {
-            when (it) {
+        call.addOnResultListener { result ->
+            when (result) {
                 is FakeNetworkSuccess<String> -> {
                     BACKGROUND.submit {
-                        titleDao.insertTitle(Title(it.data))
+                        // run insertTitle on a background thread
+                        titleDao.insertTitle(Title(result.data))
                     }
                     onStateChanged(Complete)
                 }
                 is FakeNetworkError -> {
-                    onStateChanged(Error(TitleRefreshError(it.error)))
+                    onStateChanged(Error(TitleRefreshError(result.error)))
                 }
             }
         }
     }
-
 
     /**
      * Class that represents the state of a refresh request.
@@ -108,7 +110,7 @@ class TitleRepository(private val network: MainNetwork, private val titleDao: Ti
          *
          * @param error error message ready to be displayed to user
          */
-        class Error(val error: Throwable): RefreshState()
+        class Error(val error: Throwable) : RefreshState()
     }
 }
 
@@ -126,13 +128,12 @@ typealias TitleStateListener = (TitleRepository.RefreshState) -> Unit
  * @property message user ready error message
  * @property cause the original cause of this exception
  */
-class TitleRefreshError(cause: Throwable): Throwable(cause.message, cause)
+class TitleRefreshError(cause: Throwable) : Throwable(cause.message, cause)
 
 /**
- * Suspend function to use callback-base [FakeNetworkCall] in coroutines
+ * Suspend function to use callback-based [FakeNetworkCall] in coroutines
  *
  * @return network result after completion
  * @throws Throwable original exception from library if network request fails
  */
 // TODO: Implement FakeNetworkCall<T>.await() here
-

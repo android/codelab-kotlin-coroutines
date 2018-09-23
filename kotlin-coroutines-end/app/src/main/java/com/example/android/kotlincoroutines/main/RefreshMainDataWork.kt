@@ -20,7 +20,7 @@ import android.support.annotation.WorkerThread
 import androidx.work.Worker
 import androidx.work.Worker.Result.FAILURE
 import androidx.work.Worker.Result.SUCCESS
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 
 /**
  * Worker job to refresh refresh titles from the network while the app is in the background.
@@ -28,7 +28,7 @@ import kotlinx.coroutines.experimental.runBlocking
  * WorkManager is a library used to enqueue work that is guaranteed to execute after its constraints
  * are met. It can run work even when the app is in the background, or not running.
  */
-class RefreshMainDataWork: Worker() {
+class RefreshMainDataWork : Worker() {
 
     /**
      * Do our actual processing for the worker.
@@ -45,15 +45,17 @@ class RefreshMainDataWork: Worker() {
      * Refresh the title from the network using [TitleRepository]
      */
     @WorkerThread
-    fun refreshTitle(): Result = runBlocking {
-        val database = getDatabase(applicationContext)
-        val repository = TitleRepository(MainNetworkImpl, database.titleDao)
+    fun refreshTitle(): Result {
+        return runBlocking {
+            val database = getDatabase(applicationContext)
+            val repository = TitleRepository(MainNetworkImpl, database.titleDao)
 
-        try {
-            repository.refreshTitle()
-            SUCCESS
-        } catch(ex: TitleRefreshError) {
-            FAILURE
+            try {
+                repository.refreshTitle()
+                SUCCESS
+            } catch (ex: TitleRefreshError) {
+                FAILURE
+            }
         }
     }
 }

@@ -32,7 +32,6 @@ import com.example.android.kotlincoroutines.R
  */
 class MainActivity : AppCompatActivity() {
 
-
     /**
      * Inflate layout.activity_main and setup data binding.
      */
@@ -67,7 +66,7 @@ class MainActivity : AppCompatActivity() {
         // show the spinner when [MainViewModel.spinner] is true
         viewModel.spinner.observe(this, Observer { value ->
             value?.let { show ->
-                spinner.visibility = if(show) View.VISIBLE else View.GONE
+                spinner.visibility = if (show) View.VISIBLE else View.GONE
             }
         })
 

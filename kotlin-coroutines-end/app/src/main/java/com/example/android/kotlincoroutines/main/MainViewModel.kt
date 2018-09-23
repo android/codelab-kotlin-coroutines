@@ -22,11 +22,11 @@ import android.arch.lifecycle.Transformations
 import android.arch.lifecycle.ViewModel
 import com.example.android.kotlincoroutines.util.ConsumableEvent
 import com.example.android.kotlincoroutines.util.singleArgViewModelFactory
-import kotlinx.coroutines.experimental.CoroutineScope
-import kotlinx.coroutines.experimental.Dispatchers
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.android.Main
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.android.Main
+import kotlinx.coroutines.launch
 
 /**
  * MainViewModel designed to store and manage UI-related data in a lifecycle conscious way. This
@@ -36,7 +36,7 @@ import kotlinx.coroutines.experimental.launch
  *
  * @param repository the data source this ViewModel will fetch results from.
  */
-class MainViewModel(private val repository: TitleRepository): ViewModel() {
+class MainViewModel(private val repository: TitleRepository) : ViewModel() {
 
     companion object {
         /**
@@ -94,13 +94,17 @@ class MainViewModel(private val repository: TitleRepository): ViewModel() {
      * The loading spinner will display until a result is returned, and errors will trigger
      * a snackbar.
      */
-    fun onMainViewClicked() = refreshTitle()
+    fun onMainViewClicked() {
+        refreshTitle()
+    }
 
     /**
      * Refresh the title, showing a loading spinner while it refreshes and errors via snackbar.
      */
-    private fun refreshTitle() = launchDataLoad {
-        repository.refreshTitle()
+    fun refreshTitle() {
+        launchDataLoad {
+            repository.refreshTitle()
+        }
     }
 
     /**
@@ -115,14 +119,16 @@ class MainViewModel(private val repository: TitleRepository): ViewModel() {
      *              lambda the loading spinner will display, after completion or error the loading
      *              spinner will stop
      */
-    internal fun launchDataLoad(block: suspend CoroutineScope.() -> Unit): Job = uiScope.launch {
-        try {
-            _spinner.value = true
-            block()
-        } catch (ex: TitleRefreshError) {
-            _snackBar.value = ex.message
-        } finally {
-            _spinner.value = false
+    private fun launchDataLoad(block: suspend CoroutineScope.() -> Unit): Job {
+        return uiScope.launch {
+            try {
+                _spinner.value = true
+                block()
+            } catch (ex: TitleRefreshError) {
+                _snackBar.value = ex.message
+            } finally {
+                _spinner.value = false
+            }
         }
     }
 }
