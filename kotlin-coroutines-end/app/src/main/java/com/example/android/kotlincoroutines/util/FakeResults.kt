@@ -24,5 +24,5 @@ val FAKE_RESULTS = listOf(
         "My favorite feature",
         "Async made easy",
         "Coroutines by example",
-        "Check out the KTX codelab!"
+        "Check out the Room with a View codelab!"
 )

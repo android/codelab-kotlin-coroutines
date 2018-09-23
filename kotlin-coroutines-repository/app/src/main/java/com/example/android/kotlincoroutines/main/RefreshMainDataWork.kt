@@ -26,7 +26,7 @@ import androidx.work.Worker.Result.SUCCESS
  * WorkManager is a library used to enqueue work that is guaranteed to execute after its constraints
  * are met. It can run work even when the app is in the background, or not running.
  */
-class RefreshMainDataWork: Worker() {
+class RefreshMainDataWork : Worker() {
 
     /**
      * Do our actual processing for the worker.

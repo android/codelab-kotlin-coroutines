@@ -25,10 +25,10 @@ import com.example.android.kotlincoroutines.main.TitleRepository.RefreshState.Er
 import com.example.android.kotlincoroutines.main.TitleRepository.RefreshState.Loading
 import com.example.android.kotlincoroutines.util.ConsumableEvent
 import com.example.android.kotlincoroutines.util.singleArgViewModelFactory
-import kotlinx.coroutines.experimental.CoroutineScope
-import kotlinx.coroutines.experimental.Dispatchers
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.android.Main
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.android.Main
 
 /**
  * MainViewModel designed to store and manage UI-related data in a lifecycle conscious way. This
@@ -38,7 +38,7 @@ import kotlinx.coroutines.experimental.android.Main
  *
  * @param repository the data source this ViewModel will fetch results from.
  */
-class MainViewModel(private val repository: TitleRepository): ViewModel() {
+class MainViewModel(private val repository: TitleRepository) : ViewModel() {
 
     companion object {
         /**
@@ -120,12 +120,11 @@ class MainViewModel(private val repository: TitleRepository): ViewModel() {
         refreshTitle()
     }
 
-
     /**
      * Refresh the title, showing a loading spinner while it refreshes and errors via snackbar.
      */
     // TODO: Change this implementation to use coroutines
-    private fun refreshTitle() {
+    fun refreshTitle() {
         // pass a state listener as a lambda to refreshTitle
         repository.refreshTitle { state ->
             when (state) {

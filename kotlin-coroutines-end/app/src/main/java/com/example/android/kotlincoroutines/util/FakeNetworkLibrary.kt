@@ -39,7 +39,6 @@ import java.util.concurrent.Executors
  *
  */
 
-
 private const val ONE_SECOND = 1_000L
 
 private val executor = Executors.newCachedThreadPool()
@@ -60,7 +59,6 @@ fun fakeNetworkLibrary(from: List<String>): FakeNetworkCall<String> {
         // pretend we got a result from the passed list, or randomly an error
         if (DefaultErrorDecisionStrategy.shouldError()) {
             result.onError(FakeNetworkException("Error contacting the network"))
-
         } else {
             result.onSuccess(from[Random().nextInt(from.size)])
         }
@@ -79,7 +77,7 @@ interface ErrorDecisionStrategy {
  * Default error decision strategy allows us to override the behavior of a decision strategy in
  * tests
  */
-object DefaultErrorDecisionStrategy: ErrorDecisionStrategy {
+object DefaultErrorDecisionStrategy : ErrorDecisionStrategy {
     var delegate: ErrorDecisionStrategy = RandomErrorStrategy
 
     override fun shouldError() = delegate.shouldError()
@@ -88,7 +86,7 @@ object DefaultErrorDecisionStrategy: ErrorDecisionStrategy {
 /**
  * Random error decision strategy uses random to return error randomly
  */
-object RandomErrorStrategy: ErrorDecisionStrategy {
+object RandomErrorStrategy : ErrorDecisionStrategy {
     override fun shouldError() = Random().nextFloat() < 0.1
 }
 
@@ -101,7 +99,12 @@ class FakeNetworkCall<T> {
     val listeners = mutableListOf<FakeNetworkListener<T>>()
 
     /**
-     * Register a result listener to observe this callback
+     * Register a result listener to observe this callback.
+     *
+     * Errors will be passed to this callback as an instance of [FakeNetworkError] and successful
+     * calls will be passed to this callback as an instance of [FakeNetworkSuccess].
+     *
+     * @param listener the callback to call when this request completes
      */
     fun addOnResultListener(listener: (FakeNetworkResult<T>) -> Unit) {
         trySendResult(listener)
@@ -131,7 +134,7 @@ class FakeNetworkCall<T> {
 
     /**
      * Send the current result to a specific listener.
-     * 
+     *
      * If no result is set (null), this method will do nothing.
      */
     private fun trySendResult(listener: FakeNetworkListener<T>) {
@@ -154,14 +157,14 @@ sealed class FakeNetworkResult<T>
  *
  * @param data the result
  */
-class FakeNetworkSuccess<T>(val data: T): FakeNetworkResult<T>()
+class FakeNetworkSuccess<T>(val data: T) : FakeNetworkResult<T>()
 
 /**
  * Passed to listener when the network failed
  *
  * @param error the exception that caused this error
  */
-class FakeNetworkError<T>(val error: Throwable): FakeNetworkResult<T>()
+class FakeNetworkError<T>(val error: Throwable) : FakeNetworkResult<T>()
 
 /**
  * Listener "type" for observing a [FakeNetworkCall]

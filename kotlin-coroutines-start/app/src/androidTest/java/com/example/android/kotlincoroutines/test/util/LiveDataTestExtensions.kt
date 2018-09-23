@@ -18,9 +18,10 @@ package com.example.android.kotlincoroutines.test.util
 
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.Observer
-import com.example.android.kotlincoroutines.util.ConsumableEvent
+import com.example.android.kotlincoroutines.util.ConsumableValue
 import com.google.common.truth.Truth
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeUnit.SECONDS
 
 /**
@@ -32,7 +33,11 @@ import java.util.concurrent.TimeUnit.SECONDS
  *
  * @param expected the value to find
  */
-fun <T> LiveData<ConsumableEvent<T>>.assertSendsEventWith(expected: T) {
+fun <T> LiveData<ConsumableValue<T>>.assertSendsEventWith(
+    expected: T,
+    timeout: Long = 2,
+    unit: TimeUnit = SECONDS
+) {
     // the last value that this liveData sent, or null if none
     var found: T? = null
     // latch to wait until the value is found
@@ -42,9 +47,9 @@ fun <T> LiveData<ConsumableEvent<T>>.assertSendsEventWith(expected: T) {
      * An observer will be called every time a LiveData updates it's value. In this case we're
      * going to store data from the ConsumableEvent until we find expected.
      */
-    val observer = Observer<ConsumableEvent<T>> { actual ->
-        actual?.handle { data ->
-            markUnhandled() // don't consume the event
+    val observer = Observer<ConsumableValue<T>> { actual ->
+        actual?.consume { data ->
+            release() // don't consume the value
             found = data
 
             if (data == expected) {
@@ -58,7 +63,7 @@ fun <T> LiveData<ConsumableEvent<T>>.assertSendsEventWith(expected: T) {
     // observeForever will watch for changes, including any sent before now
     observeForever(observer)
     // wait up to two seconds for the observer to let us know it found the value
-    val completed = latch.await(2, SECONDS)
+    val completed = latch.await(timeout, unit)
     // always remove the observer
     removeObserver(observer)
 
@@ -70,13 +75,12 @@ fun <T> LiveData<ConsumableEvent<T>>.assertSendsEventWith(expected: T) {
 /**
  * Captor class to capture all values sent to a LiveData.
  */
-class LiveDataCaptor<T>: Observer<T> {
+class LiveDataCaptor<T> : Observer<T> {
     private val _values = mutableListOf<T?>()
     val values: List<T?>
         get() = _values
 
     override fun onChanged(t: T?) {
-
     }
 }
 
