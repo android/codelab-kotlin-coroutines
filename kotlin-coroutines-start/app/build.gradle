@@ -43,8 +43,8 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.26.0'
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:0.26.0"
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.26.0-eap13'
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:0.26.0-eap13"
 
 
     implementation 'com.android.support:appcompat-v7:27.1.1'
@@ -62,7 +62,7 @@ dependencies {
     implementation "android.arch.persistence.room:runtime:$room_version"
     kapt "android.arch.persistence.room:compiler:$room_version"
 
-    def work_version = "1.0.0-alpha08"
+    def work_version = "1.0.0-alpha09"
 
     implementation "android.arch.work:work-runtime:$work_version"
 
