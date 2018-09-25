@@ -66,26 +66,26 @@ class MainViewModel(private val repository: TitleRepository) : ViewModel() {
         get() = _spinner
 
     /**
-     * This is the parent job for all coroutines started by this ViewModel.
+     * This is the job for all coroutines started by this ViewModel.
      *
      * Cancelling this job will cancel all coroutines started by this ViewModel.
      */
-    private val parentJob = Job()
+    private val viewModelJob = Job()
 
     /**
-     * This is the main scope for all Coroutines launched by MainViewModel.
+     * This is the main scope for all coroutines launched by MainViewModel.
      *
-     * Since we pass parentJob, you can cancel all coroutines launched by uiScope by calling
-     * parentJob.cancel()
+     * Since we pass viewModelJob, you can cancel all coroutines launched by uiScope by calling
+     * viewModelJob.cancel()
      */
-    private val uiScope = CoroutineScope(Dispatchers.Main + parentJob)
+    private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
     /**
      * Cancel all coroutines when the ViewModel is cleared
      */
     override fun onCleared() {
         super.onCleared()
-        parentJob.cancel()
+        viewModelJob.cancel()
     }
 
     /**
@@ -124,8 +124,8 @@ class MainViewModel(private val repository: TitleRepository) : ViewModel() {
             try {
                 _spinner.value = true
                 block()
-            } catch (ex: TitleRefreshError) {
-                _snackBar.value = ex.message
+            } catch (error: TitleRefreshError) {
+                _snackBar.value = error.message
             } finally {
                 _spinner.value = false
             }

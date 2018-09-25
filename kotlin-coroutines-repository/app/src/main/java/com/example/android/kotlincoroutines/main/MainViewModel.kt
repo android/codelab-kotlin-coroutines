@@ -20,7 +20,7 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Transformations
 import android.arch.lifecycle.ViewModel
-import com.example.android.kotlincoroutines.main.TitleRepository.RefreshState.Complete
+import com.example.android.kotlincoroutines.main.TitleRepository.RefreshState.Success
 import com.example.android.kotlincoroutines.main.TitleRepository.RefreshState.Error
 import com.example.android.kotlincoroutines.main.TitleRepository.RefreshState.Loading
 import com.example.android.kotlincoroutines.util.ConsumableEvent
@@ -88,26 +88,26 @@ class MainViewModel(private val repository: TitleRepository) : ViewModel() {
         get() = _spinner
 
     /**
-     * This is the parent job for all coroutines started by this ViewModel.
+     * This is the job for all coroutines started by this ViewModel.
      *
      * Cancelling this job will cancel all coroutines started by this ViewModel.
      */
-    private val parentJob = Job()
+    private val viewModelJob = Job()
 
     /**
-     * This is the main scope for all Coroutines launched by MainViewModel.
+     * This is the main scope for all coroutines launched by MainViewModel.
      *
-     * Since we pass parentJob, you can cancel all coroutines launched by uiScope by calling
-     * parentJob.cancel()
+     * Since we pass viewModelJob, you can cancel all coroutines launched by uiScope by calling
+     * viewModelJob.cancel()
      */
-    private val uiScope = CoroutineScope(Dispatchers.Main + parentJob)
+    private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
     /**
      * Cancel all coroutines when the ViewModel is cleared
      */
     override fun onCleared() {
         super.onCleared()
-        parentJob.cancel()
+        viewModelJob.cancel()
     }
 
     /**
@@ -129,7 +129,7 @@ class MainViewModel(private val repository: TitleRepository) : ViewModel() {
         repository.refreshTitle { state ->
             when (state) {
                 is Loading -> _spinner.postValue(true)
-                is Complete -> _spinner.postValue(false)
+                is Success -> _spinner.postValue(false)
                 is Error -> {
                     _spinner.postValue(false)
                     _snackBar.postValue(state.error.message)

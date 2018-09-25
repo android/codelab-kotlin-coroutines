@@ -18,17 +18,13 @@ package com.example.android.kotlincoroutines.main
 
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.Transformations
-import com.example.android.kotlincoroutines.main.TitleRepository.RefreshState.Complete
+import com.example.android.kotlincoroutines.main.TitleRepository.RefreshState.Success
 import com.example.android.kotlincoroutines.main.TitleRepository.RefreshState.Error
 import com.example.android.kotlincoroutines.main.TitleRepository.RefreshState.Loading
 import com.example.android.kotlincoroutines.util.BACKGROUND
-import com.example.android.kotlincoroutines.util.FakeNetworkCall
 import com.example.android.kotlincoroutines.util.FakeNetworkError
 import com.example.android.kotlincoroutines.util.FakeNetworkSuccess
 import kotlin.LazyThreadSafetyMode.NONE
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 
 /**
  * TitleRepository provides an interface to fetch a title or request a new one be generated.
@@ -53,7 +49,7 @@ class TitleRepository(private val network: MainNetwork, private val titleDao: Ti
      * used for the first time.
      */
     val title: LiveData<String> by lazy<LiveData<String>>(NONE) {
-        Transformations.map(titleDao.loadTitle()) { it.title }
+        Transformations.map(titleDao.loadTitle()) { it?.title }
     }
 
     /**
@@ -62,7 +58,7 @@ class TitleRepository(private val network: MainNetwork, private val titleDao: Ti
      * This method does not return the new title. Use [TitleRepository.title] to observe
      * the current tile.
      *
-     * @param onStateChanged callback called when state changes to Loading, Complete, or Error
+     * @param onStateChanged callback called when state changes to Loading, Success, or Error
      */
     // TODO: Reimplement with coroutines and remove state listener
     fun refreshTitle(onStateChanged: TitleStateListener) {
@@ -75,7 +71,7 @@ class TitleRepository(private val network: MainNetwork, private val titleDao: Ti
                         // run insertTitle on a background thread
                         titleDao.insertTitle(Title(result.data))
                     }
-                    onStateChanged(Complete)
+                    onStateChanged(Success)
                 }
                 is FakeNetworkError -> {
                     onStateChanged(Error(TitleRefreshError(result.error)))
@@ -103,7 +99,7 @@ class TitleRepository(private val network: MainNetwork, private val titleDao: Ti
          *
          * An object is a singleton that cannot have more than one instance.
          */
-        object Complete : RefreshState()
+        object Success : RefreshState()
 
         /**
          * The request has completed with an error

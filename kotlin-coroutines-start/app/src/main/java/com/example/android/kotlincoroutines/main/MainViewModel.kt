@@ -47,9 +47,9 @@ class MainViewModel : ViewModel() {
      */
     val snackbar = Transformations.map(_snackBar) { ConsumableValue(it) }
 
-    // TODO: Add parentJob and uiScope here
+    // TODO: Add viewModelJob and uiScope here
 
-    // TODO: Add onCleared() here to cancel parent job
+    // TODO: Add onCleared() here to cancel viewModelJob
 
     /**
      * Wait one second then display a snackbar.
