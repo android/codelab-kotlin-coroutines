@@ -41,6 +41,8 @@ import java.util.concurrent.Executors
 
 private const val ONE_SECOND = 1_000L
 
+private const val ERROR_RATE = 0.3
+
 private val executor = Executors.newCachedThreadPool()
 
 private val uiHandler = Handler(Looper.getMainLooper())
@@ -87,7 +89,7 @@ object DefaultErrorDecisionStrategy : ErrorDecisionStrategy {
  * Random error decision strategy uses random to return error randomly
  */
 object RandomErrorStrategy : ErrorDecisionStrategy {
-    override fun shouldError() = Random().nextFloat() < 0.1
+    override fun shouldError() = Random().nextFloat() < ERROR_RATE
 }
 
 /**

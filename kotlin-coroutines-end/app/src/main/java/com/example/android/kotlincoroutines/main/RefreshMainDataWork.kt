@@ -53,7 +53,7 @@ class RefreshMainDataWork : Worker() {
             try {
                 repository.refreshTitle()
                 SUCCESS
-            } catch (ex: TitleRefreshError) {
+            } catch (error: TitleRefreshError) {
                 FAILURE
             }
         }

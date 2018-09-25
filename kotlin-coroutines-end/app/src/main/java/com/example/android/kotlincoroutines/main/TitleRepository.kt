@@ -53,7 +53,7 @@ class TitleRepository(val network: MainNetwork, val titleDao: TitleDao) {
      * used for the first time.
      */
     val title: LiveData<String> by lazy<LiveData<String>>(NONE) {
-        Transformations.map(titleDao.loadTitle()) { it.title }
+        Transformations.map(titleDao.loadTitle()) { it?.title }
     }
 
     /**
@@ -67,8 +67,8 @@ class TitleRepository(val network: MainNetwork, val titleDao: TitleDao) {
             try {
                 val result = network.fetchNewWelcome().await()
                 titleDao.insertTitle(Title(result))
-            } catch (ex: FakeNetworkException) {
-                throw TitleRefreshError(ex)
+            } catch (error: FakeNetworkException) {
+                throw TitleRefreshError(error)
             }
         }
     }
