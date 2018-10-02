@@ -48,7 +48,7 @@ class MainViewModel(private val repository: TitleRepository) : ViewModel() {
     }
 
     private val _snackBar = MutableLiveData<String>()
-    
+
     /**
      * Request a snackbar to display a string.
      */
