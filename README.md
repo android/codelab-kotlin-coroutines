@@ -1,42 +1,8 @@
-# New Project Template
+# Using Kotlin Coroutines in your Android app
 
-This repository contains a template you can use to seed a repository for a
-new open source project.
+This folder contains the source code for the Kotlin Coroutines codelab.
 
-See go/releasing (available externally at
-https://opensource.google.com/docs/releasing/) for more information about
-releasing a new Google open source project.
-
-This template uses the Apache license, as is Google's default.  See the
-documentation for instructions on using alternate license.
-
-## How to use this template
-
-1. Check it out from GitHub.
-    * There is no reason to fork it.
-1. Create a new local repository and copy the files from this repo into it.
-1. Modify README.md and CONTRIBUTING.md to represent your project, not the
-   template project.
-1. Develop your new project!
-
-``` shell
-git clone https://github.com/google/new-project
-mkdir my-new-thing
-cd my-new-thing
-git init
-cp ../new-project/* .
-git add *
-git commit -a -m 'Boilerplate for new Google open source project'
-```
-
-## Source Code Headers
-
-Every file containing source code must include copyright and license
-information. This includes any JS/CSS files that you might be serving out to
-browsers. (This is to help well-intentioned people avoid accidental copying that
-doesn't comply with the license.)
-
-Apache header:
+## License
 
     Copyright 2018 Google LLC
 
