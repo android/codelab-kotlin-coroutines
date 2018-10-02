@@ -18,7 +18,7 @@ package com.example.android.kotlincoroutines.test.util
 
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.Observer
-import com.example.android.kotlincoroutines.util.ConsumableEvent
+import com.example.android.kotlincoroutines.util.ConsumableValue
 import com.google.common.truth.Truth
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.channels.Channel
@@ -28,15 +28,15 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeUnit.SECONDS
 
 /**
- * Helper extension that asserts that a LiveData gets a ConsumableEvent with expected in the next 2
+ * Helper extension that asserts that a LiveData gets a ConsumableValue with expected in the next 2
  * seconds.
  *
- * LiveData<ConsumableEvent<T>> defines an extension function only for LiveData of ConsumableEvent.
+ * LiveData<ConsumableValue<T>> defines an extension function only for LiveData of ConsumableValue.
  * You can call this as if it were a method of LiveData.
  *
  * @param expected the value to find
  */
-fun <T> LiveData<ConsumableEvent<T>>.assertSendsEventWith(expected: T) {
+fun <T> LiveData<ConsumableValue<T>>.assertSendsEventWith(expected: T) {
     // the last value that this liveData sent, or null if none
     var found: T? = null
     // latch to wait until the value is found
@@ -44,9 +44,9 @@ fun <T> LiveData<ConsumableEvent<T>>.assertSendsEventWith(expected: T) {
 
     /**
      * An observer will be called every time a LiveData updates it's value. In this case we're
-     * going to store data from the ConsumableEvent until we find expected.
+     * going to store data from the ConsumableValue until we find expected.
      */
-    val observer = Observer<ConsumableEvent<T>> { actual ->
+    val observer = Observer<ConsumableValue<T>> { actual ->
         actual?.handle { data ->
             markUnhandled() // don't consume the event
             found = data
