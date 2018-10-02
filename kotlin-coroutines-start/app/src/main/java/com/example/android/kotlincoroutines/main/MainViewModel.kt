@@ -43,7 +43,7 @@ class MainViewModel : ViewModel() {
     /**
      * Request a snackbar to display a string.
      *
-     * Use Transformations.map to wrap each string sent to _snackbar in a ConsumableEvent.
+     * Use Transformations.map to wrap each string sent to _snackbar in a ConsumableValue.
      */
     val snackbar = Transformations.map(_snackBar) { ConsumableValue(it) }
 
