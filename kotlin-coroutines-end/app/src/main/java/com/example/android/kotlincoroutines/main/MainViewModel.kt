@@ -112,15 +112,14 @@ class MainViewModel(private val repository: TitleRepository) : ViewModel() {
      * Helper function to call a data load function with a loading spinner, errors will trigger a
      * snackbar.
      *
-     * By marking `block` as `suspend` and making it an extension lambda of CoroutineScope with
-     * `CoroutineScope.() -> Unit`, this creates a suspend lambda which can call suspend
+     * By marking `block` as `suspend` this creates a suspend lambda which can call suspend
      * functions.
      *
      * @param block lambda to actually load data. It is called in the uiScope. Before calling the
      *              lambda the loading spinner will display, after completion or error the loading
      *              spinner will stop
      */
-    private fun launchDataLoad(block: suspend CoroutineScope.() -> Unit): Job {
+    private fun launchDataLoad(block: suspend () -> Unit): Job {
         return uiScope.launch {
             try {
                 _spinner.value = true
