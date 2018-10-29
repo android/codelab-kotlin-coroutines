@@ -23,7 +23,6 @@ import com.example.android.kotlincoroutines.util.FakeNetworkError
 import com.example.android.kotlincoroutines.util.FakeNetworkException
 import com.example.android.kotlincoroutines.util.FakeNetworkSuccess
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
 import kotlin.LazyThreadSafetyMode.NONE
 import kotlin.coroutines.resume

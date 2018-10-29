@@ -16,10 +16,10 @@
 
 package com.example.android.kotlincoroutines.main
 
+import android.content.Context
 import android.support.annotation.WorkerThread
 import androidx.work.Worker
-import androidx.work.Worker.Result.FAILURE
-import androidx.work.Worker.Result.SUCCESS
+import androidx.work.WorkerParameters
 import kotlinx.coroutines.runBlocking
 
 /**
@@ -28,7 +28,7 @@ import kotlinx.coroutines.runBlocking
  * WorkManager is a library used to enqueue work that is guaranteed to execute after its constraints
  * are met. It can run work even when the app is in the background, or not running.
  */
-class RefreshMainDataWork : Worker() {
+class RefreshMainDataWork(context: Context, params: WorkerParameters) : Worker(context, params) {
 
     /**
      * Do our actual processing for the worker.
@@ -52,9 +52,9 @@ class RefreshMainDataWork : Worker() {
 
             try {
                 repository.refreshTitle()
-                SUCCESS
+                Result.SUCCESS
             } catch (error: TitleRefreshError) {
-                FAILURE
+                Result.FAILURE
             }
         }
     }

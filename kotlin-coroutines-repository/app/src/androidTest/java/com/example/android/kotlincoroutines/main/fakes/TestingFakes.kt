@@ -60,7 +60,7 @@ class TitleDaoFake(var titleToReturn: String) : TitleDao {
      * @param timeout duration to wait
      * @param unit timeunit
      */
-    fun assertNextInsert(expected: String, timeout: Long = 2, unit: TimeUnit = SECONDS) {
+    fun assertNextInsert(expected: String, timeout: Long = 2_000) {
         runBlocking {
             val completableDeferred = CompletableDeferred<String>()
             mutex.withLock {
@@ -75,7 +75,7 @@ class TitleDaoFake(var titleToReturn: String) : TitleDao {
 
             // wait for the next insertion to complete the deferred
             try {
-                withTimeout(timeout, unit) {
+                withTimeout(timeout) {
                     val next = completableDeferred.await()
                     Truth.assertThat(next).isEqualTo(expected)
                 }
