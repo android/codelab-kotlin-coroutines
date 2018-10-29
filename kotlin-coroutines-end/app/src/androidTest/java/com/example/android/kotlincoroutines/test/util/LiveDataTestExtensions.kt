@@ -18,58 +18,10 @@ package com.example.android.kotlincoroutines.test.util
 
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.Observer
-import com.example.android.kotlincoroutines.util.ConsumableValue
 import com.google.common.truth.Truth
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.withTimeout
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeUnit.SECONDS
-
-/**
- * Helper extension that asserts that a LiveData gets a ConsumableValue with expected in the next 2
- * seconds.
- *
- * LiveData<ConsumableValue<T>> defines an extension function only for LiveData of ConsumableValue.
- * You can call this as if it were a method of LiveData.
- *
- * @param expected the value to find
- */
-fun <T> LiveData<ConsumableValue<T>>.assertSendsEventWith(expected: T) {
-    // the last value that this liveData sent, or null if none
-    var found: T? = null
-    // latch to wait until the value is found
-    val latch = CountDownLatch(1)
-
-    /**
-     * An observer will be called every time a LiveData updates it's value. In this case we're
-     * going to store data from the ConsumableValue until we find expected.
-     */
-    val observer = Observer<ConsumableValue<T>> { actual ->
-        actual?.handle { data ->
-            markUnhandled() // don't consume the event
-            found = data
-
-            if (data == expected) {
-                // the expected value was sent, so we can run our assertion right away
-                // let assertSendsEventWith know to exit await()
-                latch.countDown()
-            }
-        }
-    }
-
-    // observeForever will watch for changes, including any sent before now
-    observeForever(observer)
-    // wait up to two seconds for the observer to let us know it found the value
-    val completed = latch.await(2, SECONDS)
-    // always remove the observer
-    removeObserver(observer)
-
-    Truth.assertThat(found).isEqualTo(expected)
-    // and ensure that the observer actually processed an event (in case we're checking null)
-    Truth.assertThat(completed).isTrue()
-}
 
 /**
  * Represents a list of capture values from a LiveData.
@@ -89,13 +41,13 @@ class LiveDataValueCapture<T> {
         channel.offer(value)
     }
 
-    suspend fun assertSendsValues(timeout: Long, unit: TimeUnit, vararg expected: T) {
+    suspend fun assertSendsValues(timeout: Long, vararg expected: T?) {
         val expectedList = expected.asList()
         if (values == expectedList) {
             return
         }
         try {
-            withTimeout(timeout, unit) {
+            withTimeout(timeout) {
                 for (value in channel) {
                     if (values == expectedList) {
                         return@withTimeout

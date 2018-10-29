@@ -4,7 +4,6 @@ import android.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.android.kotlincoroutines.main.fakes.MainNetworkFake
 import com.example.android.kotlincoroutines.main.fakes.TitleDaoFake
 import com.example.android.kotlincoroutines.main.fakes.makeSuccessCall
-import com.example.android.kotlincoroutines.test.util.assertSendsEventWith
 import com.example.android.kotlincoroutines.test.util.captureValues
 import com.example.android.kotlincoroutines.test.util.getValueForTest
 import com.example.android.kotlincoroutines.util.FakeNetworkCall
@@ -49,9 +48,9 @@ class MainViewModelTest {
         subject.spinner.captureValues {
             subject.onMainViewClicked()
             runBlocking {
-                assertSendsValues(2, SECONDS, true)
+                assertSendsValues(2_000, true)
                 call.onSuccess("data")
-                assertSendsValues(2, SECONDS, true, false)
+                assertSendsValues(2_000, true, false)
             }
         }
     }
@@ -67,15 +66,36 @@ class MainViewModelTest {
         )
 
         subject.spinner.captureValues {
+            val spinnerCaptor = this
             subject.onMainViewClicked()
             runBlocking {
-                assertSendsValues(2, SECONDS, true)
+                assertSendsValues(2_000, true)
                 call.onError(FakeNetworkException("An error"))
-                assertSendsValues(2, SECONDS, true, false)
+                assertSendsValues(2_000, true, false)
             }
         }
+    }
 
-        subject.snackbar.assertSendsEventWith("An error")
+    @Test
+    fun whenErrorTitleReload_itShowsErrorText() {
+        val call = FakeNetworkCall<String>()
+        val subject = MainViewModel(
+                TitleRepository(
+                        MainNetworkFake(call),
+                        TitleDaoFake("title")
+                )
+        )
+
+        subject.snackbar.captureValues {
+            val spinnerCaptor = this
+            subject.onMainViewClicked()
+            runBlocking {
+                call.onError(FakeNetworkException("An error"))
+                assertSendsValues(2_000, "An error")
+                subject.onSnackbarShown()
+                assertSendsValues(2_000, "An error", null)
+            }
+        }
     }
 
     @Test

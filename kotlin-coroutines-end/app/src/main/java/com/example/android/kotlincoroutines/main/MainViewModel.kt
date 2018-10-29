@@ -25,7 +25,6 @@ import com.example.android.kotlincoroutines.util.singleArgViewModelFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.android.Main
 import kotlinx.coroutines.launch
 
 /**
@@ -47,12 +46,23 @@ class MainViewModel(private val repository: TitleRepository) : ViewModel() {
         val FACTORY = singleArgViewModelFactory(::MainViewModel)
     }
 
+    /**
+     * Request a snackbar to display a string.
+     *
+     * This variable is private because we don't want to expose MutableLiveData
+     *
+     * MutableLiveData allows anyone to set a value, and MainViewModel is the only
+     * class that should be setting values.
+     */
     private val _snackBar = MutableLiveData<String>()
 
     /**
      * Request a snackbar to display a string.
+     *
+     * Use Transformations.map to wrap each string sent to _snackbar in a ConsumableValue.
      */
-    val snackbar = Transformations.map(_snackBar) { ConsumableValue(it) }
+    val snackbar: LiveData<String>
+        get() = _snackBar
 
     /**
      * Update title text via this livedata
@@ -97,6 +107,13 @@ class MainViewModel(private val repository: TitleRepository) : ViewModel() {
      */
     fun onMainViewClicked() {
         refreshTitle()
+    }
+
+    /**
+     * Called immediately after the UI shows the snackbar.
+     */
+    fun onSnackbarShown() {
+        _snackBar.value = null
     }
 
     /**

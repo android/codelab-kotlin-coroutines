@@ -23,12 +23,10 @@ import android.arch.lifecycle.ViewModel
 import com.example.android.kotlincoroutines.main.TitleRepository.RefreshState.Success
 import com.example.android.kotlincoroutines.main.TitleRepository.RefreshState.Error
 import com.example.android.kotlincoroutines.main.TitleRepository.RefreshState.Loading
-import com.example.android.kotlincoroutines.util.ConsumableValue
 import com.example.android.kotlincoroutines.util.singleArgViewModelFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.android.Main
 
 /**
  * MainViewModel designed to store and manage UI-related data in a lifecycle conscious way. This
@@ -64,7 +62,8 @@ class MainViewModel(private val repository: TitleRepository) : ViewModel() {
      *
      * Use Transformations.map to wrap each string sent to _snackbar in a ConsumableValue.
      */
-    val snackbar = Transformations.map(_snackBar) { ConsumableValue(it) }
+    val snackbar: LiveData<String>
+        get() = _snackBar
 
     /**
      * Update title text via this livedata
@@ -118,6 +117,13 @@ class MainViewModel(private val repository: TitleRepository) : ViewModel() {
      */
     fun onMainViewClicked() {
         refreshTitle()
+    }
+
+    /**
+     * Called immediately after the UI shows the snackbar.
+     */
+    fun onSnackbarShown() {
+        _snackBar.value = null
     }
 
     /**
