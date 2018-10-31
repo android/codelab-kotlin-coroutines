@@ -18,87 +18,46 @@ package com.example.android.kotlincoroutines.test.util
 
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.Observer
-import com.example.android.kotlincoroutines.util.ConsumableValue
 import com.google.common.truth.Truth
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeUnit.SECONDS
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.withTimeout
 
 /**
- * Helper extension that asserts that a LiveData gets a ConsumableEvent with expected in the next 2
- * seconds.
+ * Represents a list of capture values from a LiveData.
  *
- * LiveData<ConsumableEvent<T>> defines an extension function only for LiveData of ConsumableEvent.
- * You can call this as if it were a method of LiveData.
- *
- * @param expected the value to find
+ * This class is not threadsafe and must be used from the main thread.
  */
-fun <T> LiveData<ConsumableValue<T>>.assertSendsEventWith(
-    expected: T,
-    timeout: Long = 2,
-    unit: TimeUnit = SECONDS
-) {
-    // the last value that this liveData sent, or null if none
-    var found: T? = null
-    // latch to wait until the value is found
-    val latch = CountDownLatch(1)
+class LiveDataValueCapture<T> {
 
-    /**
-     * An observer will be called every time a LiveData updates it's value. In this case we're
-     * going to store data from the ConsumableEvent until we find expected.
-     */
-    val observer = Observer<ConsumableValue<T>> { actual ->
-        actual?.consume { data ->
-            release() // don't consume the value
-            found = data
-
-            if (data == expected) {
-                // the expected value was sent, so we can run our assertion right away
-                // let assertSendsEventWith know to exit await()
-                latch.countDown()
-            }
-        }
-    }
-
-    // observeForever will watch for changes, including any sent before now
-    observeForever(observer)
-    // wait up to two seconds for the observer to let us know it found the value
-    val completed = latch.await(timeout, unit)
-    // always remove the observer
-    removeObserver(observer)
-
-    Truth.assertThat(found).isEqualTo(expected)
-    // and ensure that the observer actually processed an event (in case we're checking null)
-    Truth.assertThat(completed).isTrue()
-}
-
-/**
- * Captor class to capture all values sent to a LiveData.
- */
-class LiveDataCaptor<T> : Observer<T> {
     private val _values = mutableListOf<T?>()
     val values: List<T?>
         get() = _values
 
-    override fun onChanged(t: T?) {
+    val channel = Channel<T?>(Channel.UNLIMITED)
+
+    fun addValue(value: T?) {
+        _values += value
+        channel.offer(value)
     }
-}
 
-/**
- * Represents a list of capture values from a LiveData.
- */
-data class LiveDataValueCapture<T>(val values: List<T?>)
-
-/**
- * Verify *all* capture values match expected.
- *
- * For example, `LiveDataValueCapture(listOf(true, true, false)).verify(true, true, false)` will
- * match, but `.verify(true, false)` will fail even though it matches part of the capture values.
- *
- * @param expected values to assert in the order they must have been posted
- */
-fun <T> LiveDataValueCapture<T>.verify(vararg expected: T?) {
-    Truth.assertThat(values).isEqualTo(expected.asList())
+    suspend fun assertSendsValues(timeout: Long, vararg expected: T?) {
+        val expectedList = expected.asList()
+        if (values == expectedList) {
+            return
+        }
+        try {
+            withTimeout(timeout) {
+                for (value in channel) {
+                    if (values == expectedList) {
+                        return@withTimeout
+                    }
+                }
+            }
+        } catch (ex: TimeoutCancellationException) {
+            Truth.assertThat(values).isEqualTo(expectedList)
+        }
+    }
 }
 
 /**
@@ -107,15 +66,14 @@ fun <T> LiveDataValueCapture<T>.verify(vararg expected: T?) {
  *
  * @param captureBlock a lambda that will
  */
-inline fun <T> LiveData<T>.captureValues(captureBlock: () -> Unit): LiveDataValueCapture<T> {
-    val values = mutableListOf<T?>()
+inline fun <T> LiveData<T>.captureValues(block: LiveDataValueCapture<T>.() -> Unit) {
+    val capture = LiveDataValueCapture<T>()
     val observer = Observer<T> {
-        values += it
+        capture.addValue(it)
     }
     observeForever(observer)
-    captureBlock()
+    capture.block()
     removeObserver(observer)
-    return LiveDataValueCapture(values)
 }
 
 /**

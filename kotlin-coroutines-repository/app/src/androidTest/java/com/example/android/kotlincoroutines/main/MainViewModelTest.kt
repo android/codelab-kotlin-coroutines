@@ -87,7 +87,6 @@ class MainViewModelTest {
         )
 
         subject.snackbar.captureValues {
-            val spinnerCaptor = this
             subject.onMainViewClicked()
             runBlocking {
                 call.onError(FakeNetworkException("An error"))

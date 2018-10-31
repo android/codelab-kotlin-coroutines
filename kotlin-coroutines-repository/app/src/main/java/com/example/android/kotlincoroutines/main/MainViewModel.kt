@@ -59,8 +59,6 @@ class MainViewModel(private val repository: TitleRepository) : ViewModel() {
 
     /**
      * Request a snackbar to display a string.
-     *
-     * Use Transformations.map to wrap each string sent to _snackbar in a ConsumableValue.
      */
     val snackbar: LiveData<String>
         get() = _snackBar

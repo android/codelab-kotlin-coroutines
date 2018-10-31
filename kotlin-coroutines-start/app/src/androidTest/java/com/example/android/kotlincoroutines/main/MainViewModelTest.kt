@@ -17,7 +17,8 @@
 package com.example.android.kotlincoroutines.main
 
 import android.arch.core.executor.testing.InstantTaskExecutorRule
-import com.example.android.kotlincoroutines.test.util.assertSendsEventWith
+import com.example.android.kotlincoroutines.test.util.captureValues
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -45,8 +46,12 @@ class MainViewModelTest {
 
     @Test
     fun whenMainViewModelClicked_showSnackbar() {
-        subject.onMainViewClicked()
-        subject.snackbar.assertSendsEventWith("Hello, from threads!")
+        runBlocking {
+            subject.snackbar.captureValues {
+                subject.onMainViewClicked()
+                assertSendsValues(2_000, "Hello, from threads!")
+            }
+        }
     }
 }
 

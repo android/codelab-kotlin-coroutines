@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        // Show a snackbar whenever the [ViewModel.snackbar] is updated with a new [ConsumableValue]
+        // Show a snackbar whenever the [ViewModel.snackbar] is updated with a non-null value
         viewModel.snackbar.observe(this, Observer { text ->
             text?.let {
                 Snackbar.make(rootLayout, text, Snackbar.LENGTH_SHORT).show()
