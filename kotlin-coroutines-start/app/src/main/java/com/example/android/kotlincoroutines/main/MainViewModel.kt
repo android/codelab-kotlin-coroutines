@@ -16,11 +16,11 @@
 
 package com.example.android.kotlincoroutines.main
 
+import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Transformations
 import android.arch.lifecycle.ViewModel
 import com.example.android.kotlincoroutines.util.BACKGROUND
-import com.example.android.kotlincoroutines.util.ConsumableValue
 
 /**
  * MainViewModel designed to store and manage UI-related data in a lifecycle conscious way. This
@@ -43,9 +43,10 @@ class MainViewModel : ViewModel() {
     /**
      * Request a snackbar to display a string.
      *
-     * Use Transformations.map to wrap each string sent to _snackbar in a ConsumableValue.
+     * Use Transformations.map to wrap each string sent to _snackbar in a non-null value
      */
-    val snackbar = Transformations.map(_snackBar) { ConsumableValue(it) }
+    val snackbar: LiveData<String>
+        get() = _snackBar
 
     // TODO: Add viewModelJob and uiScope here
 
@@ -61,5 +62,12 @@ class MainViewModel : ViewModel() {
             // use postValue since we're in a background thread
             _snackBar.postValue("Hello, from threads!")
         }
+    }
+
+    /**
+     * Called immediately after the UI shows the snackbar.
+     */
+    fun onSnackbarShown() {
+        _snackBar.value = null
     }
 }

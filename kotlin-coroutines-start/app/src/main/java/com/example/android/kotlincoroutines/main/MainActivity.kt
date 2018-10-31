@@ -47,11 +47,13 @@ class MainActivity : AppCompatActivity() {
             viewModel.onMainViewClicked()
         }
 
-        // Show a snackbar whenever the [ViewModel.snackbar] is updated with a new [ConsumableEvent]
-        viewModel.snackbar.observe(this, Observer { value ->
-            value?.consume { value ->
-                Snackbar.make(rootLayout, value, Snackbar.LENGTH_SHORT).show()
+        // Show a snackbar whenever the [ViewModel.snackbar] is updated with a non-null value
+        viewModel.snackbar.observe(this, Observer { text ->
+            text?.let {
+                Snackbar.make(rootLayout, text, Snackbar.LENGTH_SHORT).show()
+                viewModel.onSnackbarShown()
             }
+
         })
     }
 }

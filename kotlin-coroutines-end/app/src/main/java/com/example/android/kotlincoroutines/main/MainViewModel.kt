@@ -20,7 +20,6 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Transformations
 import android.arch.lifecycle.ViewModel
-import com.example.android.kotlincoroutines.util.ConsumableValue
 import com.example.android.kotlincoroutines.util.singleArgViewModelFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -58,8 +57,6 @@ class MainViewModel(private val repository: TitleRepository) : ViewModel() {
 
     /**
      * Request a snackbar to display a string.
-     *
-     * Use Transformations.map to wrap each string sent to _snackbar in a ConsumableValue.
      */
     val snackbar: LiveData<String>
         get() = _snackBar
