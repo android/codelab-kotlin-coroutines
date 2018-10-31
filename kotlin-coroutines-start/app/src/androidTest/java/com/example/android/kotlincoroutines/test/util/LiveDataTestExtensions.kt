@@ -48,8 +48,8 @@ fun <T> LiveData<ConsumableValue<T>>.assertSendsEventWith(
      * going to store data from the ConsumableEvent until we find expected.
      */
     val observer = Observer<ConsumableValue<T>> { actual ->
-        actual?.consume { data ->
-            release() // don't consume the value
+        actual?.handle { data ->
+            markUnhandled() // don't consume the value
             found = data
 
             if (data == expected) {
