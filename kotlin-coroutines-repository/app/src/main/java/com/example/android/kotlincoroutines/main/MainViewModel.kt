@@ -18,7 +18,6 @@ package com.example.android.kotlincoroutines.main
 
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
-import android.arch.lifecycle.Transformations
 import android.arch.lifecycle.ViewModel
 import com.example.android.kotlincoroutines.main.TitleRepository.RefreshState.Success
 import com.example.android.kotlincoroutines.main.TitleRepository.RefreshState.Error
