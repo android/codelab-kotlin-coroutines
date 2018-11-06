@@ -18,7 +18,6 @@ package com.example.android.kotlincoroutines.main
 
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
-import android.arch.lifecycle.Transformations
 import android.arch.lifecycle.ViewModel
 import com.example.android.kotlincoroutines.util.BACKGROUND
 
@@ -42,8 +41,6 @@ class MainViewModel : ViewModel() {
 
     /**
      * Request a snackbar to display a string.
-     *
-     * Use Transformations.map to wrap each string sent to _snackbar in a non-null value
      */
     val snackbar: LiveData<String>
         get() = _snackBar
