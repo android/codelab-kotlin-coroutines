@@ -16,8 +16,8 @@
 
 package com.example.android.kotlincoroutines.util
 
-import android.arch.lifecycle.ViewModel
-import android.arch.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 
 /**
  * Convenience factory to handle ViewModels with one parameter.

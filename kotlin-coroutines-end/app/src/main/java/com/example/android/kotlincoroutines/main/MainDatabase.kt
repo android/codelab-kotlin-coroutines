@@ -16,8 +16,8 @@
 
 package com.example.android.kotlincoroutines.main
 
-import android.arch.lifecycle.LiveData
-import android.arch.persistence.room.*
+import androidx.lifecycle.LiveData
+import androidx.room.*
 import android.content.Context
 
 /**

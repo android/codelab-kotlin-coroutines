@@ -17,7 +17,7 @@
 package com.example.android.kotlincoroutines.main
 
 import android.content.Context
-import android.support.annotation.WorkerThread
+import androidx.annotation.WorkerThread
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 
@@ -45,5 +45,5 @@ class RefreshMainDataWork(context: Context, params: WorkerParameters) : Worker(c
      */
     // TODO: Implement refreshTitle using coroutines and runBlocking
     @WorkerThread
-    private fun refreshTitle(): Result = Result.SUCCESS
+    private fun refreshTitle(): Result = Result.success()
 }

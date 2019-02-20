@@ -16,7 +16,7 @@
 
 package com.example.android.kotlincoroutines.main
 
-import android.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.android.kotlincoroutines.test.util.captureValues
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
