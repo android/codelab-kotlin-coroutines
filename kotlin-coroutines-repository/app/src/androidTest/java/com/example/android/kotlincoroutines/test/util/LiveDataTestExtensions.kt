@@ -16,8 +16,8 @@
 
 package com.example.android.kotlincoroutines.test.util
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.Observer
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import com.google.common.truth.Truth
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.channels.Channel

@@ -16,8 +16,8 @@
 
 package com.example.android.kotlincoroutines.main
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.Transformations
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Transformations
 import com.example.android.kotlincoroutines.util.FakeNetworkCall
 import com.example.android.kotlincoroutines.util.FakeNetworkError
 import com.example.android.kotlincoroutines.util.FakeNetworkException

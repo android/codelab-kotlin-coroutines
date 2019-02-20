@@ -1,7 +1,7 @@
 package com.example.android.kotlincoroutines.main.fakes
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.example.android.kotlincoroutines.main.MainNetwork
 import com.example.android.kotlincoroutines.main.Title
 import com.example.android.kotlincoroutines.main.TitleDao
