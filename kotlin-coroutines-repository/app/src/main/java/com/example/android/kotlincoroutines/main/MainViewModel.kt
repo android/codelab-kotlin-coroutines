@@ -19,13 +19,10 @@ package com.example.android.kotlincoroutines.main
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.android.kotlincoroutines.main.TitleRepository.RefreshState.Success
 import com.example.android.kotlincoroutines.main.TitleRepository.RefreshState.Error
 import com.example.android.kotlincoroutines.main.TitleRepository.RefreshState.Loading
+import com.example.android.kotlincoroutines.main.TitleRepository.RefreshState.Success
 import com.example.android.kotlincoroutines.util.singleArgViewModelFactory
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 
 /**
  * MainViewModel designed to store and manage UI-related data in a lifecycle conscious way. This
@@ -84,29 +81,6 @@ class MainViewModel(private val repository: TitleRepository) : ViewModel() {
         get() = _spinner
 
     /**
-     * This is the job for all coroutines started by this ViewModel.
-     *
-     * Cancelling this job will cancel all coroutines started by this ViewModel.
-     */
-    private val viewModelJob = Job()
-
-    /**
-     * This is the main scope for all coroutines launched by MainViewModel.
-     *
-     * Since we pass viewModelJob, you can cancel all coroutines launched by uiScope by calling
-     * viewModelJob.cancel()
-     */
-    private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
-
-    /**
-     * Cancel all coroutines when the ViewModel is cleared
-     */
-    override fun onCleared() {
-        super.onCleared()
-        viewModelJob.cancel()
-    }
-
-    /**
      * Respond to onClick events by refreshing the title.
      *
      * The loading spinner will display until a result is returned, and errors will trigger
@@ -148,7 +122,7 @@ class MainViewModel(private val repository: TitleRepository) : ViewModel() {
      * By marking `block` as `suspend` this creates a suspend lambda which can call suspend
      * functions.
      *
-     * @param block lambda to actually load data. It is called in the uiScope. Before calling the
+     * @param block lambda to actually load data. It is called in the viewModelScope. Before calling the
      *              lambda the loading spinner will display, after completion or error the loading
      *              spinner will stop
      */

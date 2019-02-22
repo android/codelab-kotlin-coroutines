@@ -55,6 +55,7 @@ dependencies {
     // ViewModel and LiveData
     def lifecycle_version = '2.0.0-beta01'
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.1.0-alpha02"
     testImplementation "androidx.arch.core:core-testing:$lifecycle_version"
 
     // Room for database

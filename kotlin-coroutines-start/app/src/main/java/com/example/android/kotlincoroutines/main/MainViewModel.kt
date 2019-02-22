@@ -45,10 +45,6 @@ class MainViewModel : ViewModel() {
     val snackbar: LiveData<String>
         get() = _snackBar
 
-    // TODO: Add viewModelJob and uiScope here
-
-    // TODO: Add onCleared() here to cancel viewModelJob
-
     /**
      * Wait one second then display a snackbar.
      */
