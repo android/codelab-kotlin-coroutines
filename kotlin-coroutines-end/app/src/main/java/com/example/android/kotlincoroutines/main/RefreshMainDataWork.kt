@@ -17,11 +17,10 @@
 package com.example.android.kotlincoroutines.main
 
 import android.content.Context
-import androidx.annotation.WorkerThread
 import androidx.work.CoroutineWorker
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
 
 /**
  * Worker job to refresh titles from the network while the app is in the background.
