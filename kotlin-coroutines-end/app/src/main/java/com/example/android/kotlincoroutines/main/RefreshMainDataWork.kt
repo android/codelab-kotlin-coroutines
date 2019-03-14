@@ -31,10 +31,6 @@ import kotlinx.coroutines.Dispatchers
 class RefreshMainDataWork(context: Context, params: WorkerParameters) :
         CoroutineWorker(context, params) {
 
-    // CoroutineWorker defaults to Dispatchers.Default
-    // We want to execute this on Dispatchers.IO
-    override val coroutineContext = Dispatchers.IO
-
     /**
      * Refresh the title from the network using [TitleRepository]
      *
