@@ -20,7 +20,7 @@ import android.app.Application
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy.KEEP
 import androidx.work.NetworkType.UNMETERED
-import androidx.work.PeriodicWorkRequest
+import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.android.kotlincoroutines.main.RefreshMainDataWork
 import java.util.concurrent.TimeUnit
@@ -52,8 +52,7 @@ class KotlinCoroutinesApp : Application() {
             .build()
 
         // Specify that the work should attempt to run every day
-        val work = PeriodicWorkRequest
-            .Builder(RefreshMainDataWork::class.java, 1, TimeUnit.DAYS)
+        val work = PeriodicWorkRequestBuilder<RefreshMainDataWork>(1, TimeUnit.DAYS)
             .setConstraints(constraints)
             .build()
 
