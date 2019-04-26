@@ -60,7 +60,6 @@ class RefreshMainDataWorkTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun testRefreshMainDataWork() {
         // Create request
         val request = OneTimeWorkRequestBuilder<RefreshMainDataWork>()
@@ -76,7 +75,6 @@ class RefreshMainDataWorkTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun testWithConstraints() {
         val constraints = Constraints.Builder()
                 .setRequiresCharging(true)
@@ -98,7 +96,6 @@ class RefreshMainDataWorkTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun testPeriodicWork() {
         // Create request
         val request = PeriodicWorkRequestBuilder<RefreshMainDataWork>(1, TimeUnit.DAYS)
