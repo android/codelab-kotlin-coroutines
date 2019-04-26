@@ -17,35 +17,23 @@
 package com.example.android.kotlincoroutines.main
 
 import android.content.Context
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.core.app.ApplicationProvider
-import androidx.work.Constraints
 import androidx.work.ListenableWorker.Result
-import androidx.work.NetworkType
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import androidx.work.testing.SynchronousExecutor
 import androidx.work.testing.TestListenableWorkerBuilder
 import com.example.android.kotlincoroutines.util.DefaultErrorDecisionStrategy
 import com.example.android.kotlincoroutines.util.ErrorDecisionStrategy
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.util.concurrent.Executor
-import java.util.concurrent.TimeUnit
 
 @RunWith(JUnit4::class)
 class RefreshMainDataWorkTest {
     private lateinit var context: Context
     private lateinit var workManager: WorkManager
-
-    @get:Rule
-    var instantTaskExecutorRule = InstantTaskExecutorRule()
 
     @Before
     fun setup() {
@@ -61,52 +49,12 @@ class RefreshMainDataWorkTest {
 
     @Test
     fun testRefreshMainDataWork() {
-        // Create request
-        val request = OneTimeWorkRequestBuilder<RefreshMainDataWork>()
-                .build()
-
         // Get the ListenableWorker
-        val worker = TestListenableWorkerBuilder.from(context, request).build()
+        val worker = TestListenableWorkerBuilder<RefreshMainDataWork>(context).build()
 
         // Start the work synchronously
         val result = worker.startWork().get()
 
-        assertThat(result, `is` (Result.success()))
-    }
-
-    @Test
-    fun testWithConstraints() {
-        val constraints = Constraints.Builder()
-                .setRequiresCharging(true)
-                .setRequiredNetworkType(NetworkType.UNMETERED)
-                .build()
-
-        // Create request
-        val request = OneTimeWorkRequestBuilder<RefreshMainDataWork>()
-                .setConstraints(constraints)
-                .build()
-
-        // Get the ListenableWorker
-        val worker = TestListenableWorkerBuilder.from(context, request).build()
-
-        // Start the work synchronously
-        val result = worker.startWork().get()
-
-        assertThat(result, `is` (Result.success()))
-    }
-
-    @Test
-    fun testPeriodicWork() {
-        // Create request
-        val request = PeriodicWorkRequestBuilder<RefreshMainDataWork>(1, TimeUnit.DAYS)
-                .build()
-
-        // Get the ListenableWorker
-        val worker = TestListenableWorkerBuilder.from(context, request).build()
-
-        // Start the work synchronously
-        val result = worker.startWork().get()
-
-        assertThat(result, `is` (Result.success()))
+        assertThat(result, `is`(Result.success()))
     }
 }
