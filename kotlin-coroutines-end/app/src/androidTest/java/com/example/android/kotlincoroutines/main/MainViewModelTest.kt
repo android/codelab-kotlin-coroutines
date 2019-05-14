@@ -1,9 +1,9 @@
 package com.example.android.kotlincoroutines.main
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.example.android.kotlincoroutines.main.fakes.MainNetworkFake
-import com.example.android.kotlincoroutines.main.fakes.TitleDaoFake
-import com.example.android.kotlincoroutines.main.fakes.makeSuccessCall
+import com.example.android.kotlincoroutines.fakes.MainNetworkFake
+import com.example.android.kotlincoroutines.fakes.TitleDaoFake
+import com.example.android.kotlincoroutines.fakes.makeSuccessCall
 import com.example.android.kotlincoroutines.test.util.captureValues
 import com.example.android.kotlincoroutines.test.util.getValueForTest
 import com.example.android.kotlincoroutines.util.FakeNetworkCall
@@ -14,7 +14,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.util.concurrent.TimeUnit.SECONDS
 
 @RunWith(JUnit4::class)
 class MainViewModelTest {

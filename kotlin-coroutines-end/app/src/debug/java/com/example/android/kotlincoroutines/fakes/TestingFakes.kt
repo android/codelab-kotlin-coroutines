@@ -1,4 +1,4 @@
-package com.example.android.kotlincoroutines.main.fakes
+package com.example.android.kotlincoroutines.fakes
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -14,8 +14,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeout
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeUnit.SECONDS
 
 /**
  * Fake [TitleDao] for use in tests.
