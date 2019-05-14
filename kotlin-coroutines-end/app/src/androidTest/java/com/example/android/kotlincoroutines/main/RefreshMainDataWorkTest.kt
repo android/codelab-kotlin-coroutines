@@ -19,7 +19,6 @@ package com.example.android.kotlincoroutines.main
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.work.ListenableWorker.Result
-import androidx.work.WorkManager
 import androidx.work.testing.TestListenableWorkerBuilder
 import com.example.android.kotlincoroutines.util.DefaultErrorDecisionStrategy
 import com.example.android.kotlincoroutines.util.ErrorDecisionStrategy
@@ -33,13 +32,10 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class RefreshMainDataWorkTest {
     private lateinit var context: Context
-    private lateinit var workManager: WorkManager
 
     @Before
     fun setup() {
         context = ApplicationProvider.getApplicationContext()
-
-        workManager = WorkManager.getInstance(context)
 
         DefaultErrorDecisionStrategy.delegate =
                 object: ErrorDecisionStrategy {
