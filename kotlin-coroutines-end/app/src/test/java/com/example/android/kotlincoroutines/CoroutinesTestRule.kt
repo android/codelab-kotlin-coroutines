@@ -33,7 +33,7 @@ import java.util.concurrent.Executors
  * executor.
  *
  * See https://medium.com/androiddevelopers/easy-coroutines-in-android-viewmodelscope-25bffb605471
- * and https://github.com/Kotlin/kotlinx.coroutines/issues/541
+ * and https://github.com/Kotlin/kotlinx.coroutines/tree/master/kotlinx-coroutines-test
  */
 @ExperimentalCoroutinesApi
 class CoroutinesMainDispatcherRule(
