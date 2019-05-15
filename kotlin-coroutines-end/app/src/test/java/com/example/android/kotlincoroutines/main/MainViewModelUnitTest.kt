@@ -42,7 +42,6 @@ class MainViewModelUnitTest {
 
     // Set the main coroutines dispatcher for unit testing.
     // We are setting the above-defined testDispatcher as the Main thread dispatcher.
-    // Code running on Main dispatcher will run on the test thread.
     @ExperimentalCoroutinesApi
     @get:Rule
     var coroutinesMainDispatcherRule = CoroutinesMainDispatcherRule(testDispatcher)
@@ -72,8 +71,8 @@ class MainViewModelUnitTest {
      *  interactions with an object happen.
      *
      *  Since refreshTitle launches a coroutine on the Main dispatcher, we can use
-     *  testDispatcher.runBlockingTest to execute that coroutine on the test thread and wait
-     *  for it to finish.
+     *  testDispatcher.runBlockingTest to execute that coroutine and verify that the interaction
+     *  happened on that exact same thread after the coroutine finishes.
      */
     @ExperimentalCoroutinesApi
     @Test
