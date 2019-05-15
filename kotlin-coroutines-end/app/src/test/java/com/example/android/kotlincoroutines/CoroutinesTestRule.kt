@@ -40,7 +40,11 @@ class CoroutinesMainDispatcherRule(
         private val testDispatcher: TestCoroutineDispatcher? = null
 ) : TestWatcher() {
 
-    private val singleThreadExecutor by lazy { Executors.newSingleThreadExecutor() }
+    // In order to check if singleThreadExecutor got initialized (without creating the object)
+    // we need to extract the delegate out. Check the `finished` method,
+    // a (singleThreadExecutor != null) will create the object even if it's not created
+    private val singleThreadExecutorDelegate = lazy { Executors.newSingleThreadExecutor() }
+    private val singleThreadExecutor by singleThreadExecutorDelegate
 
     override fun starting(description: Description?) {
         super.starting(description)
@@ -53,7 +57,7 @@ class CoroutinesMainDispatcherRule(
 
     override fun finished(description: Description?) {
         super.finished(description)
-        if (singleThreadExecutor != null) {
+        if (singleThreadExecutorDelegate.isInitialized()) {
             singleThreadExecutor.shutdownNow()
         }
         testDispatcher?.let {
