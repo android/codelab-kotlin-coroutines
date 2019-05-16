@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.android.kotlincoroutines.main.fakes
+package com.example.android.kotlincoroutines.fakes
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

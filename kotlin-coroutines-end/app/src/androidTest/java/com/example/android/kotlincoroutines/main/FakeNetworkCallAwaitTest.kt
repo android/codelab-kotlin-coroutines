@@ -16,8 +16,8 @@
 
 package com.example.android.kotlincoroutines.main
 
-import com.example.android.kotlincoroutines.main.fakes.makeFailureCall
-import com.example.android.kotlincoroutines.main.fakes.makeSuccessCall
+import com.example.android.kotlincoroutines.fakes.makeFailureCall
+import com.example.android.kotlincoroutines.fakes.makeSuccessCall
 import com.example.android.kotlincoroutines.util.FakeNetworkException
 import com.google.common.truth.Truth
 import kotlinx.coroutines.runBlocking
