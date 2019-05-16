@@ -17,14 +17,13 @@
 package com.example.android.kotlincoroutines.main
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.example.android.kotlincoroutines.CoroutinesMainDispatcherRule
-import com.example.android.kotlincoroutines.LiveDataTestUtil
+import com.example.android.kotlincoroutines.CoroutinesTestRule
 import com.example.android.kotlincoroutines.fakes.MainNetworkFake
 import com.example.android.kotlincoroutines.fakes.TitleDaoFake
+import com.example.android.kotlincoroutines.observeForTesting
 import com.example.android.kotlincoroutines.util.FakeNetworkCall
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Rule
 import org.junit.Test
@@ -33,18 +32,13 @@ import org.mockito.Mockito.verify
 
 class MainViewModelUnitTest {
 
-    // Subject under test
-    private lateinit var mainViewModel: MainViewModel
-
-    // A CoroutineDispatcher that can be controlled from tests
-    @ExperimentalCoroutinesApi
-    private val testDispatcher = TestCoroutineDispatcher()
+    private lateinit var subject: MainViewModel
 
     // Set the main coroutines dispatcher for unit testing.
     // We are setting the above-defined testDispatcher as the Main thread dispatcher.
     @ExperimentalCoroutinesApi
     @get:Rule
-    var coroutinesMainDispatcherRule = CoroutinesMainDispatcherRule(testDispatcher)
+    var coroutinesTestRule = CoroutinesTestRule()
 
     // Executes each task synchronously using Architecture Components.
     @get:Rule
@@ -52,15 +46,17 @@ class MainViewModelUnitTest {
 
     @Test
     fun refreshTitle() {
-        mainViewModel = MainViewModel(
+        subject = MainViewModel(
                 TitleRepository(
                         MainNetworkFake(FakeNetworkCall()),
                         TitleDaoFake("title")
                 )
         )
-        mainViewModel.refreshTitle()
+        subject.refreshTitle()
 
-        assertThat(LiveDataTestUtil.getValue(mainViewModel.title)).isEqualTo("title")
+        subject.title.observeForTesting {
+            assertThat(subject.title.value).isEqualTo("title")
+        }
     }
 
     /**
@@ -76,14 +72,12 @@ class MainViewModelUnitTest {
      */
     @ExperimentalCoroutinesApi
     @Test
-    fun refreshTitle_MockitoVersion() {
-        testDispatcher.runBlockingTest {
-            val mockRepository = mock(TitleRepository::class.java)
-            mainViewModel = MainViewModel(mockRepository).also {
-                it.refreshTitle()
-            }
-
-            verify(mockRepository).refreshTitle()
+    fun refreshTitle_MockitoVersion() = coroutinesTestRule.testDispatcher.runBlockingTest {
+        val mockRepository = mock(TitleRepository::class.java)
+        subject = MainViewModel(mockRepository).also {
+            it.refreshTitle()
         }
+
+        verify(mockRepository).refreshTitle()
     }
 }
