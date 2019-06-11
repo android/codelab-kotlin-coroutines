@@ -47,28 +47,32 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.1.1'
 
 
-    implementation 'androidx.appcompat:appcompat:1.1.0-alpha02'
-    implementation 'com.google.android.material:material:1.1.0-alpha03'
+    implementation 'androidx.appcompat:appcompat:1.1.0-beta01'
+    implementation 'com.google.android.material:material:1.1.0-alpha07'
 
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
 
     // ViewModel and LiveData
-    def lifecycle_version = '2.0.0-beta01'
+    def lifecycle_version = '2.2.0-alpha01'
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.1.0-alpha02"
-    testImplementation "androidx.arch.core:core-testing:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0-alpha01"
+    testImplementation "androidx.arch.core:core-testing:2.1.0-beta01"
 
     // Room for database
     def room_version = '2.0.0'
     implementation "androidx.room:room-runtime:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
 
-    def work_version = "1.0.0-rc01"
-    implementation "android.arch.work:work-runtime:$work_version"
+    def work_version = "2.1.0-alpha03"
+    implementation "androidx.work:work-runtime-ktx:$work_version"
+    androidTestImplementation "androidx.work:work-testing:$work_version"
 
     androidTestImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test:runner:1.1.1'
-    androidTestImplementation 'androidx.test:rules:1.1.1'
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test:rules:1.2.0'
     androidTestImplementation "com.google.truth:truth:0.42"
-    androidTestImplementation "androidx.arch.core:core-testing:$lifecycle_version"
+    androidTestImplementation "androidx.arch.core:core-testing:2.1.0-beta01"
+
+    // Core library
+    androidTestImplementation 'androidx.test:core:1.2.0'
 }
