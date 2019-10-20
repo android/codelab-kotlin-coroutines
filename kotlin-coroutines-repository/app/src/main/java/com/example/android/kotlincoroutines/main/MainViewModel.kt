@@ -19,10 +19,9 @@ package com.example.android.kotlincoroutines.main
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.android.kotlincoroutines.main.TitleRepository.RefreshState.Error
-import com.example.android.kotlincoroutines.main.TitleRepository.RefreshState.Loading
-import com.example.android.kotlincoroutines.main.TitleRepository.RefreshState.Success
+import androidx.lifecycle.viewModelScope
 import com.example.android.kotlincoroutines.util.singleArgViewModelFactory
+import kotlinx.coroutines.launch
 
 /**
  * MainViewModel designed to store and manage UI-related data in a lifecycle conscious way. This
@@ -100,17 +99,15 @@ class MainViewModel(private val repository: TitleRepository) : ViewModel() {
     /**
      * Refresh the title, showing a loading spinner while it refreshes and errors via snackbar.
      */
-    // TODO: Change this implementation to use coroutines
     fun refreshTitle() {
-        // pass a state listener as a lambda to refreshTitle
-        repository.refreshTitle { state ->
-            when (state) {
-                is Loading -> _spinner.postValue(true)
-                is Success -> _spinner.postValue(false)
-                is Error -> {
-                    _spinner.postValue(false)
-                    _snackBar.postValue(state.error.message)
-                }
+        viewModelScope.launch {
+            try {
+                _spinner.value = true
+                repository.refreshTitle()
+            } catch (error: TitleRefreshError) {
+                _snackBar.value = error.message
+            } finally {
+                _spinner.value = false
             }
         }
     }
@@ -126,5 +123,5 @@ class MainViewModel(private val repository: TitleRepository) : ViewModel() {
      *              lambda the loading spinner will display, after completion or error the loading
      *              spinner will stop
      */
-    // TODO: Add launchDataLoad here then refactor refreshTitle to use it
+// TODO: Add launchDataLoad here then refactor refreshTitle to use it
 }
