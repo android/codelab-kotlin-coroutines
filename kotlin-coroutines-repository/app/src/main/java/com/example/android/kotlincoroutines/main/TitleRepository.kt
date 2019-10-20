@@ -18,13 +18,15 @@ package com.example.android.kotlincoroutines.main
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
-import com.example.android.kotlincoroutines.main.TitleRepository.RefreshState.Success
-import com.example.android.kotlincoroutines.main.TitleRepository.RefreshState.Error
-import com.example.android.kotlincoroutines.main.TitleRepository.RefreshState.Loading
+import com.example.android.kotlincoroutines.main.TitleRepository.RefreshState.*
 import com.example.android.kotlincoroutines.util.BACKGROUND
+import com.example.android.kotlincoroutines.util.FakeNetworkCall
 import com.example.android.kotlincoroutines.util.FakeNetworkError
 import com.example.android.kotlincoroutines.util.FakeNetworkSuccess
 import kotlin.LazyThreadSafetyMode.NONE
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 /**
  * TitleRepository provides an interface to fetch a title or request a new one be generated.
@@ -132,4 +134,13 @@ class TitleRefreshError(cause: Throwable) : Throwable(cause.message, cause)
  * @return network result after completion
  * @throws Throwable original exception from library if network request fails
  */
-// TODO: Implement FakeNetworkCall<T>.await() here
+suspend fun <T> FakeNetworkCall<T>.await(): T {
+    return suspendCoroutine { continuation ->
+        addOnResultListener { result ->
+            when (result) {
+                is FakeNetworkSuccess<T> -> continuation.resume(result.data)
+                is FakeNetworkError -> continuation.resumeWithException(result.error)
+            }
+        }
+    }
+}
