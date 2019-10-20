@@ -21,6 +21,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.android.kotlincoroutines.util.singleArgViewModelFactory
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 /**
@@ -99,18 +100,7 @@ class MainViewModel(private val repository: TitleRepository) : ViewModel() {
     /**
      * Refresh the title, showing a loading spinner while it refreshes and errors via snackbar.
      */
-    fun refreshTitle() {
-        viewModelScope.launch {
-            try {
-                _spinner.value = true
-                repository.refreshTitle()
-            } catch (error: TitleRefreshError) {
-                _snackBar.value = error.message
-            } finally {
-                _spinner.value = false
-            }
-        }
-    }
+    fun refreshTitle() = launchDataLoad { repository.refreshTitle() }
 
     /**
      * Helper function to call a data load function with a loading spinner, errors will trigger a
@@ -123,5 +113,16 @@ class MainViewModel(private val repository: TitleRepository) : ViewModel() {
      *              lambda the loading spinner will display, after completion or error the loading
      *              spinner will stop
      */
-// TODO: Add launchDataLoad here then refactor refreshTitle to use it
+    private fun launchDataLoad(block: suspend () -> Unit): Job {
+        return viewModelScope.launch {
+            try {
+                _spinner.value = true
+                block()
+            } catch (error: TitleRefreshError) {
+                _snackBar.value = error.message
+            } finally {
+                _spinner.value = false
+            }
+        }
+    }
 }
