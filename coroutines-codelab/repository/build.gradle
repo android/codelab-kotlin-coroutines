@@ -69,6 +69,6 @@ dependencies {
     androidTestImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test:rules:1.2.0'
-    androidTestImplementation "com.google.truth:truth:0.42"
+    androidTestImplementation "com.google.truth:truth:0.43"
     androidTestImplementation "androidx.arch.core:core-testing:$lifecycle_version"
 }
