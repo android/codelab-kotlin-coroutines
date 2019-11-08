@@ -17,7 +17,6 @@
 package com.example.android.kotlincoroutines.main
 
 import android.content.Context
-import androidx.annotation.WorkerThread
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 
@@ -28,22 +27,17 @@ import androidx.work.WorkerParameters
  * are met. It can run work even when the app is in the background, or not running.
  */
 class RefreshMainDataWork(context: Context, params: WorkerParameters) : Worker(context, params) {
+    // TODO: Replace this with a CoroutineWorker
 
     /**
      * Do our actual processing for the worker.
      *
      * WorkManager will call this method from a background thread. It may be called even
-     * after our app has been terminated by the operating system, in which case [WorkManager] will
+     * after our app has been terminated by the operating system, in which case WorkManager will
      * start just enough to run this [Worker].
      */
     override fun doWork(): Result {
-        return refreshTitle()
+        //TODO: Replace this with a suspending doWork function and call refreshTitle()
+        return Result.success()
     }
-
-    /**
-     * Refresh the title from the network using [TitleRepository]
-     */
-    // TODO: Implement refreshTitle using coroutines and runBlocking
-    @WorkerThread
-    private fun refreshTitle(): Result = Result.success()
 }
