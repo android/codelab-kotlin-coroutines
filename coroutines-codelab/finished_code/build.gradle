@@ -49,10 +49,10 @@ android {
 
 dependencies {
     // dependencies are defined in ext arrays in coroutines-codelab/build.gradle
-    implementation implementation_libraries
-    kapt implementation_kapt
-    debugImplementation debug_libraries
+    implementation libraries
+    kapt librariesKapt
+    debugImplementation librariesDebug
 
-    testImplementation test_libraries
-    androidTestImplementation androidTest_libraries
+    testImplementation testLibraries
+    androidTestImplementation androidTestLibraries
 }
