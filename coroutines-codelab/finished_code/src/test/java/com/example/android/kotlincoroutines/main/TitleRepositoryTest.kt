@@ -1,16 +1,19 @@
 package com.example.android.kotlincoroutines.main
 
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.android.kotlincoroutines.fakes.MainNetworkCompletableFake
 import com.example.android.kotlincoroutines.fakes.MainNetworkFake
 import com.example.android.kotlincoroutines.fakes.TitleDaoFake
-import com.google.common.truth.ExpectFailure
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.test.runBlockingTest
+import org.junit.Rule
 import org.junit.Test
 
 class TitleRepositoryTest {
+
+    @get:Rule
+    val instantTaskExecutorRule = InstantTaskExecutorRule()
 
     @Test
     fun whenRefreshTitleSuccess_insertsRows() = runBlockingTest {
@@ -21,7 +24,7 @@ class TitleRepositoryTest {
         )
 
         subject.refreshTitle()
-        titleDao.assertNextInsert("OK")
+        assertThat(titleDao.nextInsertedOrNull()).isEqualTo("OK")
     }
 
     @Test(expected = TitleRefreshError::class)

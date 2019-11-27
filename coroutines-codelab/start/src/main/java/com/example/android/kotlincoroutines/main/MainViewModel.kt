@@ -19,15 +19,30 @@ package com.example.android.kotlincoroutines.main
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.android.kotlincoroutines.util.BACKGROUND
+import com.example.android.kotlincoroutines.util.singleArgViewModelFactory
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  * MainViewModel designed to store and manage UI-related data in a lifecycle conscious way. This
  * allows data to survive configuration changes such as screen rotations. In addition, background
  * work such as fetching network results can continue through configuration changes and deliver
  * results after the new Fragment or Activity is available.
+ *
+ * @param repository the data source this ViewModel will fetch results from.
  */
-class MainViewModel : ViewModel() {
+class MainViewModel(private val repository: TitleRepository) : ViewModel() {
+
+    companion object {
+        /**
+         * Factory for creating [MainViewModel]
+         *
+         * @param arg the repository to pass to [MainViewModel]
+         */
+        val FACTORY = singleArgViewModelFactory(::MainViewModel)
+    }
 
     /**
      * Request a snackbar to display a string.
@@ -37,23 +52,60 @@ class MainViewModel : ViewModel() {
      * MutableLiveData allows anyone to set a value, and MainViewModel is the only
      * class that should be setting values.
      */
-    private val _snackBar = MutableLiveData<String>()
+    private val _snackBar = MutableLiveData<String?>()
 
     /**
      * Request a snackbar to display a string.
      */
-    val snackbar: LiveData<String>
+    val snackbar: LiveData<String?>
         get() = _snackBar
 
     /**
-     * Wait one second then display a snackbar.
+     * Update title text via this LiveData
+     */
+    val title = repository.title
+
+    private val _spinner = MutableLiveData<Boolean>(false)
+
+    /**
+     * Show a loading spinner if true
+     */
+    val spinner: LiveData<Boolean>
+        get() = _spinner
+
+    /**
+     * Count of taps on the screen
+     */
+    private var tapCount = 0
+
+    /**
+     * LiveData with formatted tap count.
+     */
+    private val _taps =  MutableLiveData<String>("$tapCount taps")
+
+    /**
+     * Public view of tap live data.
+     */
+    val taps: LiveData<String>
+        get() = _taps
+
+    /**
+     * Respond to onClick events by refreshing the title.
+     *
+     * The loading spinner will display until a result is returned, and errors will trigger
+     * a snackbar.
      */
     fun onMainViewClicked() {
-        // TODO: Replace with coroutine implementation
+        refreshTitle()
+        updateTaps()
+    }
+
+    private fun updateTaps() {
+        // TODO: Convert updateTaps to use coroutines
+        tapCount++
         BACKGROUND.submit {
-            Thread.sleep(1_000)
-            // use postValue since we're in a background thread
-            _snackBar.postValue("Hello, from threads!")
+            Thread.sleep(200)
+            _taps.postValue("${tapCount} taps")
         }
     }
 
@@ -62,5 +114,21 @@ class MainViewModel : ViewModel() {
      */
     fun onSnackbarShown() {
         _snackBar.value = null
+    }
+
+    /**
+     * Refresh the title, showing a loading spinner while it refreshes and errors via snackbar.
+     */
+    fun refreshTitle() {
+        // TODO: Convert refreshTitle to use coroutines
+        repository.refreshTitle(object: TitleRefreshCallback {
+            override fun onCompleted() {
+                // ignore
+            }
+
+            override fun onError(cause: Throwable) {
+                _snackBar.postValue(cause.message)
+            }
+        })
     }
 }
