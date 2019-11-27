@@ -1,0 +1,129 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+    ext.kotlin_version = '1.3.50'
+
+    ext {
+
+        // global variables
+        compile_sdk_version = 29
+        kotlin_version = '1.3.60'
+        min_sdk_version = 21
+
+        // local variables (use def)
+        def androidx_test_version = '1.2.0'
+        def annotations_version = '1.1.0'
+        def appcompat_version = '1.1.0'
+        def constraint_layout_version = '1.1.3'
+        def coroutines_android_version = '1.3.0'
+        def expresso_version = '3.2.0'
+        def glide_version = '4.10.0'
+        def gson_version = '2.8.6'
+        def junit_version = '4.12'
+        def lifecycle_version = '2.1.0'
+        def livedata_version = '2.2.0-rc02'
+        def material_version = '1.1.0-alpha09'
+        def retrofit_gson_version = '2.6.2'
+        def retrofit_version = '2.6.2'
+        def room_version = '2.2.1'
+        def truth_version = '1.0'
+        def work_version = '2.2.0'
+
+        libraries = [
+                // Kotlin standard library
+                "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version",
+
+                // Coroutines
+                "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_android_version",
+                "org.jetbrains.kotlinx:kotlinx-coroutines-android:${coroutines_android_version}",
+
+                // Android UI and appcompat
+                "androidx.appcompat:appcompat:$appcompat_version",
+                "com.google.android.material:material:$material_version",
+                "androidx.constraintlayout:constraintlayout:$constraint_layout_version",
+                "androidx.fragment:fragment-ktx:1.1.0",
+
+                // Glide
+                "com.github.bumptech.glide:glide:$glide_version",
+
+                // ViewModel and LiveData
+                "androidx.lifecycle:lifecycle-extensions:$lifecycle_version",
+                "androidx.lifecycle:lifecycle-livedata-ktx:$livedata_version",
+                "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version",
+
+                // network & serialization
+                "com.google.code.gson:gson:$gson_version",
+                "com.squareup.retrofit2:converter-gson:$retrofit_gson_version",
+                "com.squareup.retrofit2:retrofit:$retrofit_version",
+
+                // threading
+                "androidx.annotation:annotation:$annotations_version"
+        ]
+
+        arch_libraries = [
+                "androidx.work:work-runtime-ktx:$work_version",
+
+                // Room for database
+                "androidx.room:room-ktx:$room_version"
+        ]
+
+        librariesKapt = [
+                "androidx.room:room-compiler:$room_version",
+                "com.github.bumptech.glide:compiler:$glide_version"
+        ]
+
+        librariesDebug = [
+                "com.google.truth:truth:$truth_version"
+        ]
+
+        testLibraries = [
+                "junit:junit:$junit_version",
+                // Coroutines testing
+                "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_android_version",
+
+                // mocks
+                "org.mockito:mockito-core:2.23.0",
+
+                //  Architecture Components testing libraries
+                "androidx.arch.core:core-testing:$lifecycle_version"
+        ]
+
+        androidTestLibraries = [
+                "junit:junit:$junit_version",
+                "androidx.test:runner:$androidx_test_version",
+                "androidx.test:rules:$androidx_test_version",
+
+                // Espresso
+                "androidx.test.espresso:espresso-core:$expresso_version",
+                "androidx.test.espresso:espresso-contrib:$expresso_version",
+                "androidx.test.espresso:espresso-intents:$expresso_version",
+
+                //  Architecture Components testing libraries
+                "androidx.arch.core:core-testing:$lifecycle_version",
+                "androidx.work:work-testing:$work_version",
+
+        ]
+    }
+
+    repositories {
+        google()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.5.2'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        jcenter()
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}

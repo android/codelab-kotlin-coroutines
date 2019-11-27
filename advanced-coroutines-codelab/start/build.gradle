@@ -1,0 +1,47 @@
+apply plugin: 'com.android.application'
+
+apply plugin: 'kotlin-android'
+
+apply plugin: 'kotlin-android-extensions'
+
+apply plugin: 'kotlin-kapt'
+
+android {
+    compileSdkVersion compile_sdk_version
+    dataBinding {
+        enabled = true
+    }
+    defaultConfig {
+        applicationId "com.example.android.advancedcoroutines"
+        minSdkVersion min_sdk_version
+        targetSdkVersion compile_sdk_version
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+        }
+    }
+    compileOptions {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+    }
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
+dependencies {
+    // dependencies are defined in ext arrays in coroutines-codelab/build.gradle
+    implementation project(':sunflower')
+
+    implementation libraries
+    implementation arch_libraries
+    kapt librariesKapt
+    debugImplementation librariesDebug
+
+    testImplementation testLibraries
+    androidTestImplementation androidTestLibraries
+}
