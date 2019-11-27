@@ -8,6 +8,7 @@ import com.example.android.kotlincoroutines.main.utils.MainCoroutineRule
 import com.example.android.kotlincoroutines.main.utils.captureValues
 import com.example.android.kotlincoroutines.main.utils.getValueForTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.test.runBlockingTest
 import okhttp3.MediaType
 import okhttp3.ResponseBody
 import org.junit.Rule
@@ -25,6 +26,23 @@ class MainViewModelTest {
 
     @get:Rule
     val mainCoroutineRule = MainCoroutineRule()
+
+    @Test
+    fun testTaps() {
+        val subject = MainViewModel(
+                TitleRepository(
+                        MainNetworkFake("OK"),
+                        TitleDaoFake("title")
+                )
+        )
+
+        assertThat(subject.taps.getValueForTest()).isEqualTo("0 taps")
+        subject.onMainViewClicked()
+        assertThat(subject.taps.getValueForTest()).isEqualTo("0 taps")
+
+        mainCoroutineRule.advanceTimeBy(200)
+        assertThat(subject.taps.getValueForTest()).isEqualTo("1 taps")
+    }
 
     @Test
     fun loadsTitleByDefault() {
