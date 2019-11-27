@@ -54,24 +54,27 @@ class TitleRepository(val network: MainNetwork, val titleDao: TitleDao) {
      * the current tile.
      */
     fun refreshTitle(titleRefreshCallback: TitleRefreshCallback) {
-        BACKGROUND.submit {
-            network.fetchNextTitle().enqueue(object: Callback<String> {
-                override fun onFailure(call: Call<String>, throwable: Throwable) {
+        // This request will be run on a background thread by retrift
+        network.fetchNextTitle().enqueue(object: Callback<String> {
+            override fun onFailure(call: Call<String>, throwable: Throwable) {
+                // if there's an error from Retrofit, inform the callback of the error
+                titleRefreshCallback.onError(
+                        TitleRefreshError("Unable to refresh title", throwable))
+            }
+
+            override fun onResponse(call: Call<String>, response: Response<String>) {
+                if (response.isSuccessful) {
+                    // If successful, save the title (saveTitle is responsible for responding to the
+                    // callback now)
+                    saveTitle(Title(response.body()!!), titleRefreshCallback)
+                } else {
+                    // if it's not successful, inform the callback of the error
                     titleRefreshCallback.onError(
-                            TitleRefreshError("Unable to refresh title", throwable))
+                            TitleRefreshError("Unable to refresh title", null))
                 }
+            }
 
-                override fun onResponse(call: Call<String>, response: Response<String>) {
-                    if (response.isSuccessful) {
-                        saveTitle(Title(response.body()!!), titleRefreshCallback)
-                    } else {
-                        titleRefreshCallback.onError(
-                                TitleRefreshError("Unable to refresh title", null))
-                    }
-                }
-
-            })
-        }
+        })
     }
 
     /**
@@ -98,8 +101,6 @@ class TitleRepository(val network: MainNetwork, val titleDao: TitleDao) {
 class TitleRefreshError(message: String, cause: Throwable?) : Throwable(message, cause)
 
 interface TitleRefreshCallback {
-    @WorkerThread
     fun onCompleted()
-    @WorkerThread
     fun onError(cause: Throwable)
 }
