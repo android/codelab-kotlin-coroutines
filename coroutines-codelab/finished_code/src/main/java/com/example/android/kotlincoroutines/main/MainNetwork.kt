@@ -16,20 +16,35 @@
 
 package com.example.android.kotlincoroutines.main
 
-import com.example.android.kotlincoroutines.util.FAKE_RESULTS
-import com.example.android.kotlincoroutines.util.FakeNetworkCall
-import com.example.android.kotlincoroutines.util.fakeNetworkLibrary
+import com.example.android.kotlincoroutines.util.SkipNetworkInterceptor
+import com.google.gson.Gson
+import okhttp3.*
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.GET
+
+private val service: MainNetwork by lazy {
+    val okHttpClient = OkHttpClient.Builder()
+            .addInterceptor(SkipNetworkInterceptor())
+            .build()
+
+    val retrofit = Retrofit.Builder()
+            .baseUrl("http://localhost/")
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+    retrofit.create(MainNetwork::class.java)
+}
+
+fun getNetworkService() = service
 
 /**
  * Main network interface which will fetch a new welcome title for us
  */
 interface MainNetwork {
-    fun fetchNewWelcome(): FakeNetworkCall<String>
+    @GET("next_title.json")
+    suspend fun fetchNextTitle(): String
 }
 
-/**
- * Default implementation of MainNetwork.
- */
-object MainNetworkImpl : MainNetwork {
-    override fun fetchNewWelcome() = fakeNetworkLibrary(FAKE_RESULTS)
-}
+

@@ -21,47 +21,31 @@ import androidx.lifecycle.MutableLiveData
 import com.example.android.kotlincoroutines.main.MainNetwork
 import com.example.android.kotlincoroutines.main.Title
 import com.example.android.kotlincoroutines.main.TitleDao
-import com.example.android.kotlincoroutines.util.FakeNetworkCall
-import com.example.android.kotlincoroutines.util.FakeNetworkException
 import com.google.common.truth.Truth
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.channels.BroadcastChannel
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeout
 
 /**
  * Fake [TitleDao] for use in tests.
  */
-class TitleDaoFake(var titleToReturn: String) : TitleDao {
-    val inserted = mutableListOf<String>()
+class TitleDaoFake(initialTitle: String) : TitleDao {
+    val insertedForNext = Channel<Title>(capacity = Channel.BUFFERED)
 
-    /**
-     * This is used to signal an element has been inserted.
-     */
-    private var nextInsertion: CompletableDeferred<String>? = null
-
-    /**
-     * Protect concurrent access to inserted and nextInsertion
-     */
-    private val mutex = Mutex()
-
-    override fun insertTitle(title: Title) {
-        runBlocking {
-            mutex.withLock {
-                inserted += title.title
-                // complete the waiting deferred
-                nextInsertion?.complete(title.title)
-            }
-        }
+    override suspend fun insertTitle(title: Title) {
+        insertedForNext.send(title)
+        _titleLiveData.value = title
     }
 
-    override fun loadTitle(): LiveData<Title> {
-        return MutableLiveData<Title>().apply {
-            value = Title(titleToReturn)
-        }
-    }
+    private val _titleLiveData = MutableLiveData<Title?>(Title(initialTitle))
+
+    override val titleLiveData: LiveData<Title?>
+        get() = _titleLiveData
 
     /**
      * Assertion that the next element inserted has a title of expected
@@ -76,21 +60,10 @@ class TitleDaoFake(var titleToReturn: String) : TitleDao {
      */
     fun assertNextInsert(expected: String, timeout: Long = 2_000) {
         runBlocking {
-            val completableDeferred = CompletableDeferred<String>()
-            mutex.withLock {
-                // first check if the last element is already expected
-                if (inserted.isNotEmpty() && inserted.last() == expected) {
-                    return@runBlocking
-                }
-
-                // if not, setup a deferred to get notified of next insertion
-                nextInsertion = completableDeferred
-            }
-
             // wait for the next insertion to complete the deferred
             try {
                 withTimeout(timeout) {
-                    val next = completableDeferred.await()
+                    val next = insertedForNext.receive().title
                     Truth.assertThat(next).isEqualTo(expected)
                 }
             } catch (ex: TimeoutCancellationException) {
@@ -105,26 +78,24 @@ class TitleDaoFake(var titleToReturn: String) : TitleDao {
 /**
  * Testing Fake implementation of MainNetwork
  */
-class MainNetworkFake(var call: FakeNetworkCall<String> = makeSuccessCall("title")) : MainNetwork {
-    override fun fetchNewWelcome(): FakeNetworkCall<String> {
-        return call
+class MainNetworkFake(var result: String) : MainNetwork {
+    override suspend fun fetchNextTitle(): String {
+        return result
     }
 }
 
-/**
- * Make a fake successful network result
- *
- * @param result result to return
- */
-fun <T> makeSuccessCall(result: T) = FakeNetworkCall<T>().apply {
-    onSuccess(result)
-}
+class MainNetworkCompletableFake(): MainNetwork {
+    private var completable = CompletableDeferred<String>()
 
-/**
- * Make a fake failed network call
- *
- * @param throwable error to wrap
- */
-fun makeFailureCall(throwable: FakeNetworkException) = FakeNetworkCall<String>().apply {
-    onError(throwable)
+    override suspend fun fetchNextTitle(): String = completable.await()
+
+    fun sendCompletionToAllCurrentRequests(result: String) {
+        completable.complete(result)
+        completable = CompletableDeferred()
+    }
+    fun sendErrorToCurrentRequests(throwable: Throwable) {
+        completable.completeExceptionally(throwable)
+        completable = CompletableDeferred()
+    }
+
 }

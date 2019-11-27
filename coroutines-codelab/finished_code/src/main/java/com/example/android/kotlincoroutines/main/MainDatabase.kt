@@ -32,10 +32,10 @@ data class Title constructor(val title: String, @PrimaryKey val id: Int = 0)
 @Dao
 interface TitleDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertTitle(title: Title)
+    suspend fun insertTitle(title: Title)
 
-    @Query("select * from Title where id = 0")
-    fun loadTitle(): LiveData<Title>
+    @get:Query("select * from Title where id = 0")
+    val titleLiveData: LiveData<Title?>
 }
 
 /**

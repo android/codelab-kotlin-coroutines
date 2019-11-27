@@ -22,6 +22,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.android.kotlincoroutines.util.singleArgViewModelFactory
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
@@ -51,25 +52,42 @@ class MainViewModel(private val repository: TitleRepository) : ViewModel() {
      * MutableLiveData allows anyone to set a value, and MainViewModel is the only
      * class that should be setting values.
      */
-    private val _snackBar = MutableLiveData<String>()
+    private val _snackBar = MutableLiveData<String?>()
 
     /**
      * Request a snackbar to display a string.
      */
-    val snackbar: LiveData<String>
+    val snackbar: LiveData<String?>
         get() = _snackBar
 
     /**
-     * Update title text via this livedata
+     * Update title text via this LiveData
      */
     val title = repository.title
 
-    private val _spinner = MutableLiveData<Boolean>()
+    private val _spinner = MutableLiveData<Boolean>(false)
+
     /**
      * Show a loading spinner if true
      */
     val spinner: LiveData<Boolean>
         get() = _spinner
+
+    /**
+     * Count of taps on the screen
+     */
+    private var tapCount = 0
+
+    /**
+     * LiveData with formatted tap count.
+     */
+    private val _taps =  MutableLiveData<String>("$tapCount taps")
+
+    /**
+     * Public view of tap live data.
+     */
+    val taps: LiveData<String>
+        get() = _taps
 
     /**
      * Respond to onClick events by refreshing the title.
@@ -79,6 +97,14 @@ class MainViewModel(private val repository: TitleRepository) : ViewModel() {
      */
     fun onMainViewClicked() {
         refreshTitle()
+        updateTaps()
+    }
+
+    private fun updateTaps() {
+        viewModelScope.launch {
+            delay(200)
+            _taps.value = "${++tapCount} taps"
+        }
     }
 
     /**
@@ -91,10 +117,8 @@ class MainViewModel(private val repository: TitleRepository) : ViewModel() {
     /**
      * Refresh the title, showing a loading spinner while it refreshes and errors via snackbar.
      */
-    fun refreshTitle() {
-        launchDataLoad {
-            repository.refreshTitle()
-        }
+    fun refreshTitle() = launchDataLoad {
+        repository.refreshTitle()
     }
 
     /**
@@ -108,8 +132,8 @@ class MainViewModel(private val repository: TitleRepository) : ViewModel() {
      *              lambda the loading spinner will display, after completion or error the loading
      *              spinner will stop
      */
-    private fun launchDataLoad(block: suspend () -> Unit): Job {
-        return viewModelScope.launch {
+    private fun launchDataLoad(block: suspend () -> Unit): Unit {
+        viewModelScope.launch {
             try {
                 _spinner.value = true
                 block()

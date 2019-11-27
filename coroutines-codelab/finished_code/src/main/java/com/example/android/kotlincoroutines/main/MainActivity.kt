@@ -25,6 +25,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.lifecycle.observe
 import com.example.android.kotlincoroutines.R
 
 /**
@@ -42,11 +43,12 @@ class MainActivity : AppCompatActivity() {
 
         val rootLayout: ConstraintLayout = findViewById(R.id.rootLayout)
         val title: TextView = findViewById(R.id.title)
+        val taps: TextView = findViewById(R.id.taps)
         val spinner: ProgressBar = findViewById(R.id.spinner)
 
         // Get MainViewModel by passing a database to the factory
         val database = getDatabase(this)
-        val repository = TitleRepository(MainNetworkImpl, database.titleDao)
+        val repository = TitleRepository(getNetworkService(), database.titleDao)
         val viewModel = ViewModelProviders
             .of(this, MainViewModel.FACTORY(repository))
             .get(MainViewModel::class.java)
@@ -57,25 +59,29 @@ class MainActivity : AppCompatActivity() {
         }
 
         // update the title when the [MainViewModel.title] changes
-        viewModel.title.observe(this, Observer { value ->
+        viewModel.title.observe(this)  { value ->
             value?.let {
                 title.text = it
             }
-        })
+        }
+
+        viewModel.taps.observe(this) { value ->
+            taps.text = value
+        }
 
         // show the spinner when [MainViewModel.spinner] is true
-        viewModel.spinner.observe(this, Observer { value ->
-            value?.let { show ->
+        viewModel.spinner.observe(this) { value ->
+            value.let { show ->
                 spinner.visibility = if (show) View.VISIBLE else View.GONE
             }
-        })
+        }
 
         // Show a snackbar whenever the [ViewModel.snackbar] is updated a non-null value
-        viewModel.snackbar.observe(this, Observer { text ->
+        viewModel.snackbar.observe(this) { text ->
             text?.let {
                 Snackbar.make(rootLayout, text, Snackbar.LENGTH_SHORT).show()
                 viewModel.onSnackbarShown()
             }
-        })
+        }
     }
 }
