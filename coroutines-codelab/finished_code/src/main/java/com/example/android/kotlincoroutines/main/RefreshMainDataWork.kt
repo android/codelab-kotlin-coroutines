@@ -17,10 +17,7 @@
 package com.example.android.kotlincoroutines.main
 
 import android.content.Context
-import androidx.work.CoroutineWorker
-import androidx.work.Worker
-import androidx.work.WorkerParameters
-import kotlinx.coroutines.Dispatchers
+import androidx.work.*
 
 /**
  * Worker job to refresh titles from the network while the app is in the background.
@@ -28,7 +25,7 @@ import kotlinx.coroutines.Dispatchers
  * WorkManager is a library used to enqueue work that is guaranteed to execute after its constraints
  * are met. It can run work even when the app is in the background, or not running.
  */
-class RefreshMainDataWork(context: Context, params: WorkerParameters) :
+class RefreshMainDataWork(context: Context, params: WorkerParameters, private val network: MainNetwork) :
         CoroutineWorker(context, params) {
 
     /**
@@ -40,7 +37,7 @@ class RefreshMainDataWork(context: Context, params: WorkerParameters) :
      */
     override suspend fun doWork(): Result {
         val database = getDatabase(applicationContext)
-        val repository = TitleRepository(MainNetworkImpl, database.titleDao)
+        val repository = TitleRepository(network, database.titleDao)
 
         return try {
             repository.refreshTitle()
@@ -48,5 +45,12 @@ class RefreshMainDataWork(context: Context, params: WorkerParameters) :
         } catch (error: TitleRefreshError) {
             Result.failure()
         }
+    }
+
+    class Factory(val network: MainNetwork = getNetworkService()): WorkerFactory() {
+        override fun createWorker(appContext: Context, workerClassName: String, workerParameters: WorkerParameters): ListenableWorker? {
+            return RefreshMainDataWork(appContext, workerParameters, network)
+        }
+
     }
 }

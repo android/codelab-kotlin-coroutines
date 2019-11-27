@@ -20,37 +20,27 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.work.ListenableWorker.Result
 import androidx.work.testing.TestListenableWorkerBuilder
-import com.example.android.kotlincoroutines.util.DefaultErrorDecisionStrategy
-import com.example.android.kotlincoroutines.util.ErrorDecisionStrategy
-import org.hamcrest.CoreMatchers.`is`
-import org.junit.Assert.assertThat
-import org.junit.Before
+import com.example.android.kotlincoroutines.fakes.MainNetworkFake
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class RefreshMainDataWorkTest {
-    private lateinit var context: Context
-
-    @Before
-    fun setup() {
-        context = ApplicationProvider.getApplicationContext()
-
-        DefaultErrorDecisionStrategy.delegate =
-                object: ErrorDecisionStrategy {
-                            override fun shouldError() = false
-                        }
-    }
 
     @Test
     fun testRefreshMainDataWork() {
-        // Get the ListenableWorker
-        val worker = TestListenableWorkerBuilder<RefreshMainDataWork>(context).build()
+        val fakeNetwork = MainNetworkFake("OK")
+
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val worker = TestListenableWorkerBuilder<RefreshMainDataWork>(context)
+                .setWorkerFactory(RefreshMainDataWork.Factory(fakeNetwork))
+                .build()
 
         // Start the work synchronously
         val result = worker.startWork().get()
 
-        assertThat(result, `is`(Result.success()))
+        assertThat(result).isEqualTo(Result.success())
     }
 }

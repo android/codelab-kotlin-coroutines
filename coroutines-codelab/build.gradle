@@ -20,19 +20,23 @@ buildscript {
     ext {
 
         // global variables
-        kotlin_version = '1.3.50'
+        kotlin_version = '1.3.61'
 
         // local variables (use def)
         def androidx_test_version = '1.2.0'
         def appcompat_version = '1.1.0'
         def constraint_layout_version = '1.1.3'
-        def coroutines_android_version = '1.2.1'
-        def expresso_version = '3.1.1'
+        def coroutines_android_version = '1.3.2'
+        def expresso_version = '3.2.0'
+        def gson_version = '2.8.6'
         def junit_version = '4.12'
         def lifecycle_version = '2.1.0'
-        def material_version = '1.2.0-alpha01'
-        def truth_version = '0.43'
-        def room_version = '2.2.1'
+        def livedata_version = '2.2.0-rc02'
+        def material_version = '1.0.0'
+        def retrofit_gson_version = '2.6.2'
+        def retrofit_version = '2.6.2'
+        def truth_version = '1.0'
+        def room_version = '2.2.2'
         def work_version = '2.2.0'
 
         libraries = [
@@ -50,24 +54,31 @@ buildscript {
 
                 // ViewModel and LiveData
                 "androidx.lifecycle:lifecycle-extensions:$lifecycle_version",
+                "androidx.lifecycle:lifecycle-livedata-ktx:$livedata_version",
                 "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version",
 
                 "androidx.work:work-runtime-ktx:$work_version",
 
                 // Room for database
-                "androidx.room:room-runtime:$room_version"
+                "androidx.room:room-ktx:$room_version",
+
+                // network & serialization
+                "com.google.code.gson:gson:$gson_version",
+                "com.squareup.retrofit2:converter-gson:$retrofit_gson_version",
+                "com.squareup.retrofit2:retrofit:$retrofit_version",
         ]
 
         librariesKapt = [
-                "androidx.room:room-compiler:$room_version"
+                "androidx.room:room-compiler:$room_version",
         ]
 
         librariesDebug = [
-                "com.google.truth:truth:$truth_version"
+                "com.google.truth:truth:$truth_version",
         ]
 
         testLibraries = [
                 "junit:junit:$junit_version",
+
                 // Coroutines testing
                 "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_android_version",
 
@@ -92,6 +103,8 @@ buildscript {
                 "androidx.arch.core:core-testing:$lifecycle_version",
                 "androidx.work:work-testing:$work_version",
 
+                // Coroutines testing
+                "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_android_version",
         ]
     }
 

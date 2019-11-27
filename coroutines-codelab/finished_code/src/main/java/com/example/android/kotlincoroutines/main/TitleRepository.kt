@@ -17,17 +17,10 @@
 package com.example.android.kotlincoroutines.main
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
-import com.example.android.kotlincoroutines.util.FakeNetworkCall
-import com.example.android.kotlincoroutines.util.FakeNetworkError
-import com.example.android.kotlincoroutines.util.FakeNetworkException
-import com.example.android.kotlincoroutines.util.FakeNetworkSuccess
+import androidx.lifecycle.map
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import kotlin.LazyThreadSafetyMode.NONE
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
+import kotlinx.coroutines.launch
 
 /**
  * TitleRepository provides an interface to fetch a title or request a new one be generated.
@@ -47,13 +40,9 @@ class TitleRepository(val network: MainNetwork, val titleDao: TitleDao) {
      *
      * Observing this will not cause the title to be refreshed, use [TitleRepository.refreshTitle]
      * to refresh the title.
-     *
-     * Because this is defined as `by lazy` it won't be instantiated until the property is
-     * used for the first time.
      */
-    val title: LiveData<String> by lazy<LiveData<String>>(NONE) {
-        Transformations.map(titleDao.loadTitle()) { it?.title }
-    }
+    val title: LiveData<String?> = titleDao.titleLiveData.map { it?.title }
+
 
     /**
      * Refresh the current title and save the results to the offline cache.
@@ -62,12 +51,29 @@ class TitleRepository(val network: MainNetwork, val titleDao: TitleDao) {
      * the current tile.
      */
     suspend fun refreshTitle() {
-        withContext(Dispatchers.IO) {
+        try {
+            val result = network.fetchNextTitle()
+            titleDao.insertTitle(Title(result))
+        } catch (error: Throwable) {
+            throw TitleRefreshError("Unable to refresh title", error)
+        }
+    }
+
+    /**
+     * This API is exposed for callers from the Java Programming language.
+     *
+     * The request will run unstructured, which means it won't be able to be cancelled.
+     *
+     * @param titleRefreshCallback a callback
+     */
+    fun refreshTitleInterop(titleRefreshCallback: TitleRefreshCallback) {
+        val scope = CoroutineScope(Dispatchers.Default)
+        scope.launch {
             try {
-                val result = network.fetchNewWelcome().await()
-                titleDao.insertTitle(Title(result))
-            } catch (error: FakeNetworkException) {
-                throw TitleRefreshError(error)
+                refreshTitle()
+                titleRefreshCallback.onCompleted()
+            } catch (throwable: Throwable) {
+                titleRefreshCallback.onError(throwable)
             }
         }
     }
@@ -79,21 +85,9 @@ class TitleRepository(val network: MainNetwork, val titleDao: TitleDao) {
  * @property message user ready error message
  * @property cause the original cause of this exception
  */
-class TitleRefreshError(cause: Throwable) : Throwable(cause.message, cause)
+class TitleRefreshError(message: String, cause: Throwable) : Throwable(message, cause)
 
-/**
- * Suspend function to use callback-based [FakeNetworkCall] in coroutines
- *
- * @return network result after completion
- * @throws Throwable original exception from library if network request fails
- */
-suspend fun <T> FakeNetworkCall<T>.await(): T {
-    return suspendCoroutine { continuation ->
-        addOnResultListener { result ->
-            when (result) {
-                is FakeNetworkSuccess<T> -> continuation.resume(result.data)
-                is FakeNetworkError -> continuation.resumeWithException(result.error)
-            }
-        }
-    }
+interface TitleRefreshCallback {
+    fun onCompleted()
+    fun onError(cause: Throwable)
 }
