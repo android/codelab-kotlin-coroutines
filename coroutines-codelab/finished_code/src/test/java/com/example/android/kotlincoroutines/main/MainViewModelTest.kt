@@ -57,7 +57,7 @@ class MainViewModelTest {
     }
 
     @Test
-    fun whenSuccessfulTitleLoad_itShowsAndHidesSpinner() {
+    fun whenSuccessfulTitleLoad_itShowsAndHidesSpinner() = mainCoroutineRule.runBlockingTest {
         val network = MainNetworkCompletableFake()
 
         val subject = MainViewModel(
@@ -76,7 +76,7 @@ class MainViewModelTest {
     }
 
     @Test
-    fun whenErrorTitleReload_itShowsErrorAndHidesSpinner() {
+    fun whenErrorTitleReload_itShowsErrorAndHidesSpinner() = mainCoroutineRule.runBlockingTest {
         val network = MainNetworkCompletableFake()
         val subject = MainViewModel(
                 TitleRepository(
@@ -95,7 +95,7 @@ class MainViewModelTest {
     }
 
     @Test
-    fun whenErrorTitleReload_itShowsErrorText() {
+    fun whenErrorTitleReload_itShowsErrorText() = mainCoroutineRule.runBlockingTest {
         val network = MainNetworkCompletableFake()
         val subject = MainViewModel(
                 TitleRepository(
@@ -112,7 +112,7 @@ class MainViewModelTest {
     }
 
     @Test
-    fun whenMainViewClicked_titleIsRefreshed() {
+    fun whenMainViewClicked_titleIsRefreshed() = mainCoroutineRule.runBlockingTest {
         val titleDao = TitleDaoFake("title")
         val subject = MainViewModel(
                 TitleRepository(
@@ -121,7 +121,7 @@ class MainViewModelTest {
                 )
         )
         subject.onMainViewClicked()
-        titleDao.assertNextInsert("OK")
+        assertThat(titleDao.nextInsertedOrNull()).isEqualTo("OK")
     }
 
     private fun makeErrorResult(result: String): HttpException {
