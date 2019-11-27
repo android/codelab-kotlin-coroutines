@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Advanced Coroutines on Android</string>
+    <string name="menu_filter_by_grow_zone" translation_description="The label for the menu item to filter the displayed plants by grow zone.">Filter by grow zone</string>
+</resources>
