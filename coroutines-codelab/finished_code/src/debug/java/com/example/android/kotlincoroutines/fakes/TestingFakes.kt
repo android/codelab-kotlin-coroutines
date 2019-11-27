@@ -35,7 +35,7 @@ import kotlinx.coroutines.withTimeout
  * Fake [TitleDao] for use in tests.
  */
 class TitleDaoFake(initialTitle: String) : TitleDao {
-    val insertedForNext = Channel<Title>(capacity = Channel.BUFFERED)
+    private val insertedForNext = Channel<Title>(capacity = Channel.BUFFERED)
 
     override suspend fun insertTitle(title: Title) {
         insertedForNext.send(title)
@@ -53,6 +53,9 @@ class TitleDaoFake(initialTitle: String) : TitleDao {
      * If the element was previously inserted and is currently the most recent element
      * this assertion will also match. This allows tests to avoid synchronizing calls to insert
      * with calls to assertNextInsert.
+     *
+     * If multiple items were inserted, this will always match the first item that was not
+     * previously matched.
      *
      * @param expected the value to match
      * @param timeout duration to wait
