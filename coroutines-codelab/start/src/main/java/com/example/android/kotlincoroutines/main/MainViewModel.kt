@@ -121,13 +121,15 @@ class MainViewModel(private val repository: TitleRepository) : ViewModel() {
      */
     fun refreshTitle() {
         // TODO: Convert refreshTitle to use coroutines
+        _spinner.value = true
         repository.refreshTitle(object: TitleRefreshCallback {
             override fun onCompleted() {
-                // ignore
+                _spinner.postValue(false)
             }
 
             override fun onError(cause: Throwable) {
                 _snackBar.postValue(cause.message)
+                _spinner.postValue(false)
             }
         })
     }
