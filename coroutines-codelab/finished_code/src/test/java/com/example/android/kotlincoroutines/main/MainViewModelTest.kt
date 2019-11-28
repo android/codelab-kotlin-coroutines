@@ -7,10 +7,12 @@ import com.example.android.kotlincoroutines.fakes.TitleDaoFake
 import com.example.android.kotlincoroutines.main.utils.MainCoroutineRule
 import com.example.android.kotlincoroutines.main.utils.captureValues
 import com.example.android.kotlincoroutines.main.utils.getValueForTest
+import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runBlockingTest
 import okhttp3.MediaType
 import okhttp3.ResponseBody
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -27,40 +29,35 @@ class MainViewModelTest {
     @get:Rule
     val mainCoroutineRule = MainCoroutineRule()
 
-    @Test
-    fun testTaps() {
-        val subject = MainViewModel(
+    lateinit var subject: MainViewModel
+
+    @Before
+    fun setup() {
+        subject = MainViewModel(
                 TitleRepository(
                         MainNetworkFake("OK"),
-                        TitleDaoFake("title")
-                )
-        )
+                        TitleDaoFake("initial")
+                ))
+    }
 
-        assertThat(subject.taps.getValueForTest()).isEqualTo("0 taps")
+    @Test
+    fun whenMainClicked_updatesTaps() {
         subject.onMainViewClicked()
-        assertThat(subject.taps.getValueForTest()).isEqualTo("0 taps")
-
-        mainCoroutineRule.advanceTimeBy(200)
-        assertThat(subject.taps.getValueForTest()).isEqualTo("1 taps")
+        Truth.assertThat(subject.taps.getValueForTest()).isEqualTo("0 taps")
+        mainCoroutineRule.advanceTimeBy(1000)
+        Truth.assertThat(subject.taps.getValueForTest()).isEqualTo("1 taps")
     }
 
     @Test
     fun loadsTitleByDefault() {
-        val subject = MainViewModel(
-                TitleRepository(
-                    MainNetworkFake("OK"),
-                    TitleDaoFake("title")
-                )
-        )
-
-        assertThat(subject.title.getValueForTest()).isEqualTo("title")
+        assertThat(subject.title.getValueForTest()).isEqualTo("initial")
     }
 
     @Test
     fun whenSuccessfulTitleLoad_itShowsAndHidesSpinner() = mainCoroutineRule.runBlockingTest {
         val network = MainNetworkCompletableFake()
 
-        val subject = MainViewModel(
+        subject = MainViewModel(
                 TitleRepository(
                         network,
                         TitleDaoFake("title")
@@ -78,7 +75,7 @@ class MainViewModelTest {
     @Test
     fun whenErrorTitleReload_itShowsErrorAndHidesSpinner() = mainCoroutineRule.runBlockingTest {
         val network = MainNetworkCompletableFake()
-        val subject = MainViewModel(
+        subject = MainViewModel(
                 TitleRepository(
                         network,
                         TitleDaoFake("title")
@@ -97,7 +94,7 @@ class MainViewModelTest {
     @Test
     fun whenErrorTitleReload_itShowsErrorText() = mainCoroutineRule.runBlockingTest {
         val network = MainNetworkCompletableFake()
-        val subject = MainViewModel(
+        subject = MainViewModel(
                 TitleRepository(
                         network,
                         TitleDaoFake("title")
@@ -114,7 +111,7 @@ class MainViewModelTest {
     @Test
     fun whenMainViewClicked_titleIsRefreshed() = mainCoroutineRule.runBlockingTest {
         val titleDao = TitleDaoFake("title")
-        val subject = MainViewModel(
+        subject = MainViewModel(
                 TitleRepository(
                         MainNetworkFake("OK"),
                         titleDao

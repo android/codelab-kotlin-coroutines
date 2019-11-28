@@ -1,7 +1,6 @@
 package com.example.android.kotlincoroutines.main
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Rule
 import org.junit.Test
 
@@ -11,13 +10,13 @@ class TitleRepositoryTest {
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
     @Test
-    fun whenRefreshTitleSuccess_insertsRows() = runBlockingTest {
+    fun whenRefreshTitleSuccess_insertsRows() {
         // TODO: Write this test
     }
 
     @Test(expected = TitleRefreshError::class)
-    fun whenRefreshTitleTimeout_throws() = runBlockingTest {
+    fun whenRefreshTitleTimeout_throws() {
         // TODO: Write this test
-        throw TitleRefreshError("Make the test pass", Throwable())
+        throw TitleRefreshError("Remove this – made test pass in starter code", null)
     }
 }

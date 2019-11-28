@@ -16,14 +16,9 @@
 
 package com.example.android.kotlincoroutines.main
 
-import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import com.example.android.kotlincoroutines.util.BACKGROUND
-import com.example.android.kotlincoroutines.util.DATABASE_POOL
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 /**
  * TitleRepository provides an interface to fetch a title or request a new one be generated.
@@ -41,7 +36,7 @@ class TitleRepository(val network: MainNetwork, val titleDao: TitleDao) {
      * This is the main interface for loading a title. The title will be loaded from the offline
      * cache.
      *
-     * Observing this will not cause the title to be refreshed, use [TitleRepository.refreshTitle]
+     * Observing this will not cause the title to be refreshed, use [TitleRepository.refreshTitleWithCallbacks]
      * to refresh the title.
      */
     val title: LiveData<String?> = titleDao.titleLiveData.map { it?.title }
@@ -53,40 +48,26 @@ class TitleRepository(val network: MainNetwork, val titleDao: TitleDao) {
      * This method does not return the new title. Use [TitleRepository.title] to observe
      * the current tile.
      */
-    fun refreshTitle(titleRefreshCallback: TitleRefreshCallback) {
+    fun refreshTitleWithCallbacks(titleRefreshCallback: TitleRefreshCallback) {
         // This request will be run on a background thread by retrift
-        network.fetchNextTitle().enqueue(object: Callback<String> {
-            override fun onFailure(call: Call<String>, throwable: Throwable) {
-                // if there's an error from Retrofit, inform the callback of the error
-                titleRefreshCallback.onError(
-                        TitleRefreshError("Unable to refresh title", throwable))
-            }
-
-            override fun onResponse(call: Call<String>, response: Response<String>) {
-                if (response.isSuccessful) {
-                    // If successful, save the title (saveTitle is responsible for responding to the
-                    // callback now)
-                    saveTitle(Title(response.body()!!), titleRefreshCallback)
+        BACKGROUND.submit {
+            try {
+                // Make network request using a blocking call
+                val result = network.fetchNextTitle().execute()
+                if (result.isSuccessful) {
+                    // Save it to database
+                    titleDao.insertTitle(Title(result.body()!!))
+                    // Inform the caller the refresh is completed
+                    titleRefreshCallback.onCompleted()
                 } else {
-                    // if it's not successful, inform the callback of the error
+                    // If it's not successful, inform the callback of the error
                     titleRefreshCallback.onError(
                             TitleRefreshError("Unable to refresh title", null))
                 }
-            }
-
-        })
-    }
-
-    /**
-     * Save a title to the database, informing callback about completion.
-     */
-    private fun saveTitle(title: Title, titleRefreshCallback: TitleRefreshCallback) {
-        DATABASE_POOL.submit {
-            try {
-                titleDao.insertTitle(title)
-                titleRefreshCallback.onCompleted()
-            } catch (throwable: Throwable) {
-                titleRefreshCallback.onError(TitleRefreshError("Unable to refresh title", throwable))
+            } catch (cause: Throwable) {
+                // If anything throws an exception, inform the caller
+                titleRefreshCallback.onError(
+                        TitleRefreshError("Unable to refresh title", cause))
             }
         }
     }
