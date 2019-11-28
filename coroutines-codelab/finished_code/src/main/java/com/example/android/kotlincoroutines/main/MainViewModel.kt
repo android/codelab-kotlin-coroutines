@@ -101,7 +101,7 @@ class MainViewModel(private val repository: TitleRepository) : ViewModel() {
 
     private fun updateTaps() {
         viewModelScope.launch {
-            delay(200)
+            delay(1_000)
             _taps.value = "${++tapCount} taps"
         }
     }

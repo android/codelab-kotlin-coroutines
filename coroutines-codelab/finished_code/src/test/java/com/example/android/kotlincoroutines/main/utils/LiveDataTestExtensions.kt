@@ -18,8 +18,6 @@ package com.example.android.kotlincoroutines.main.utils
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
-import kotlinx.coroutines.channels.Channel
-import java.util.concurrent.locks.Lock
 
 /**
  * Represents a list of capture values from a LiveData.

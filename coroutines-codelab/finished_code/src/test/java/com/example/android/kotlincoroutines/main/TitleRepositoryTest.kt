@@ -5,7 +5,7 @@ import com.example.android.kotlincoroutines.fakes.MainNetworkCompletableFake
 import com.example.android.kotlincoroutines.fakes.MainNetworkFake
 import com.example.android.kotlincoroutines.fakes.TitleDaoFake
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Rule
 import org.junit.Test
@@ -35,12 +35,10 @@ class TitleRepositoryTest {
                 TitleDaoFake("title")
         )
 
-        val refresh = async {
+        launch {
             subject.refreshTitle()
         }
 
         advanceTimeBy(5_000)
-
-        refresh.await() // throw the expected exception
     }
 }
