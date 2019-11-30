@@ -18,6 +18,7 @@ package com.example.android.advancedcoroutines
 
 import androidx.annotation.AnyThread
 import androidx.annotation.WorkerThread
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
@@ -57,7 +58,7 @@ class PlantRepository private constructor(
      * Fetch a list of [Plant]s from the database and apply a custom sort order to the list.
      * Returns a LiveData-wrapped List of Plants.
      */
-    val plants = liveData<List<Plant>> {
+    val plants: LiveData<List<Plant>> = liveData<List<Plant>> {
         // Observe plants from the database (just like a normal LiveData + Room return)
         val plantsLiveData = plantDao.getPlants()
 
