@@ -17,7 +17,6 @@
 package com.example.android.advancedcoroutines
 
 import androidx.annotation.AnyThread
-import androidx.annotation.WorkerThread
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
@@ -72,23 +71,25 @@ class PlantRepository private constructor(
      * Fetch a list of [Plant]s from the database that matches a given [GrowZone] and apply a
      * custom sort order to the list. Returns a LiveData-wrapped List of Plants.
      *
-     * This this similar to [plants], but with a [switchMap] and a nested liveData builder.
+     * This this similar to [plants], but with [applyMainSafeSort] which can safely run on the main
+     * thread.
      */
-    fun getPlantsWithGrowZone(growZone: GrowZone) = plantDao.getPlantsWithGrowZoneNumber(growZone.number)
-        // Apply switchMap, which "switches" to a new liveData every time a new value is received
-        .switchMap { plantList ->
-            // Use the liveData builder to construct a new coroutine-backed LiveData
-            liveData {
-                // When we want to call suspend funs on each item you can nest a LiveData builder.
-                // Note: each level of nesting introduces another rotation / configuration change
-                // timeout.
-                val customSortOrder = getOrRefreshCachedSortOrder()
+    fun getPlantsWithGrowZone(growZone: GrowZone) =
+        plantDao.getPlantsWithGrowZoneNumber(growZone.number)
 
-                // Emit the sorted list to the inner LiveData builder, which will be the new value
-                // sent to getPlantsWithGrowZoneNumber
-                emit(plantList.applyMainSafeSort(customSortOrder))
+            // Apply switchMap, which "switches" to a new liveData every time a new value is
+            // received
+            .switchMap { plantList ->
+
+                // Use the liveData builder to construct a new coroutine-backed LiveData
+                liveData {
+                    val customSortOrder = getOrRefreshCachedSortOrder()
+
+                    // Emit the sorted list to the LiveData builder, which will be the new value
+                    // sent to getPlantsWithGrowZoneNumber
+                    emit(plantList.applyMainSafeSort(customSortOrder))
+                }
             }
-        }
 
     // Create a flow that calls a single function
     private val customSortFlow = suspend { getOrRefreshCachedSortOrder() }.asFlow()
@@ -152,7 +153,6 @@ class PlantRepository private constructor(
 
     // A function that sorts the list of Plants in a given custom order.
     // Only runs on a background thread.
-    @WorkerThread
     private fun List<Plant>.applySort(customSortOrder: List<String>): List<Plant> {
         // Our product manager requested that these plants always be sorted first in this
         // order whenever they are present in the array
