@@ -74,12 +74,9 @@ class PlantRepository private constructor(
      *
      * This this similar to [plants], but with a [switchMap] and a nested liveData builder.
      */
-    fun getPlantsWithGrowZone(growZone: GrowZone) = liveData {
-        // Observe plants from the database for a given grow zone
-        val plantsGrowZoneLiveData = plantDao.getPlantsWithGrowZoneNumber(growZone.number)
-
+    fun getPlantsWithGrowZone(growZone: GrowZone) = plantDao.getPlantsWithGrowZoneNumber(growZone.number)
         // Apply switchMap, which "switches" to a new liveData every time a new value is received
-        emitSource(plantsGrowZoneLiveData.switchMap { plantList ->
+        .switchMap { plantList ->
             // Use the liveData builder to construct a new coroutine-backed LiveData
             liveData {
                 // When we want to call suspend funs on each item you can nest a LiveData builder.
@@ -91,8 +88,7 @@ class PlantRepository private constructor(
                 // sent to getPlantsWithGrowZoneNumber
                 emit(plantList.applyMainSafeSort(customSortOrder))
             }
-        })
-    }
+        }
 
     // Create a flow that calls a single function
     private val customSortFlow = suspend { getOrRefreshCachedSortOrder() }.asFlow()
