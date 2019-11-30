@@ -72,7 +72,8 @@ class PlantRepository private constructor(
      * Fetch a list of [Plant]s from the database that matches a given [GrowZone] and apply a
      * custom sort order to the list. Returns a LiveData-wrapped List of Plants.
      *
-     * This this similar to [plants], but with a [switchMap] and a nested liveData builder.
+     * This this similar to [plants], but uses *main-safe* transforms to avoid blocking the main
+     * thread.
      */
     fun getPlantsWithGrowZone(growZone: GrowZone) = plantDao.getPlantsWithGrowZoneNumber(growZone.number)
         // Apply switchMap, which "switches" to a new liveData every time a new value is received
@@ -90,12 +91,16 @@ class PlantRepository private constructor(
             }
         }
 
-    // Create a flow that calls a single function
+    /**
+     * Create a flow that calls a single function
+     */
     private val customSortFlow = suspend { getOrRefreshCachedSortOrder() }.asFlow()
 
-    // This is a version of `val plants` (from above), and represent our observable database using
-    // flow, which has a similar interface to sequences in Kotlin. This allows us to do async or
-    // suspending transforms of the data.
+    /**
+     * This is a version of [plants] (from above), and represent our observable database using
+     * [flow], which has a similar interface to sequences in Kotlin. This allows us to do async or
+     * suspending transforms of the data.
+     */
     val plantsFlow: Flow<List<Plant>>
         get() = plantDao.getPlantsFlow()
 
@@ -120,9 +125,11 @@ class PlantRepository private constructor(
             // buffer.
             .conflate()
 
-    // This is a version of `getPlantsWithGrowZoneNumber` (from above), but using flow.
-    // It differs from `val plantsFlow` in that it only calls main-safe suspend functions in the
-    // .map operator, so it does not need to use flowOn.
+    /**
+     * This is a version of [getPlantsWithGrowZoneNumber] (from above), but using [Flow].
+     * It differs from [plantsFlow] in that it only calls *main-safe* suspend functions in the
+     * [map] operator, so it does not need to use [flowOn].
+     */
     fun getPlantsWithGrowZoneFlow(growZone: GrowZone): Flow<List<Plant>> {
         // A Flow from Room will return each value, just like a LiveData.
         return plantDao.getPlantsWithGrowZoneNumberFlow(growZone.number)
@@ -150,9 +157,9 @@ class PlantRepository private constructor(
             }
     }
 
-    // A function that sorts the list of Plants in a given custom order.
-    // Only runs on a background thread.
-    @WorkerThread
+    /**
+     * A function that sorts the list of Plants in a given custom order.
+     */
     private fun List<Plant>.applySort(customSortOrder: List<String>): List<Plant> {
         // Our product manager requested that these plants always be sorted first in this
         // order whenever they are present in the array
@@ -164,20 +171,25 @@ class PlantRepository private constructor(
         }
     }
 
-    // The same sorting function as above, but as a suspend function that can run on any thread
+    /**
+     * The same sorting function as [applySort], but as a suspend function that can run on any thread
+     * (main-safe)
+     */
     @AnyThread
     private suspend fun List<Plant>.applyMainSafeSort(customSortOrder: List<String>) =
         withContext(defaultDispatcher) {
             this@applyMainSafeSort.applySort(customSortOrder)
         }
 
-    // Loads the plant sort order from an in-memory cache. If the cache is null,
-    // fetch sort order from network.
-    // This is synchronized because assigning the variable sortOrderLoader from Dispatchers.Default
-    // needs to be guarded.
+    /**
+     * Loads the plant sort order from an in-memory cache. If the cache is null, fetch sort order
+     * from network.
+     */
     private suspend fun getOrRefreshCachedSortOrder(): List<String> {
         // Load the value from the network once, then cache it after
         return coroutineScope {
+            // This is synchronized because assigning the variable sortOrderLoader from
+            // Dispatchers.Default needs to be guarded from multiple threads writing.
             synchronized(this) {
                 val loader: Deferred<List<String>> = sortOrderLoader ?: async(defaultDispatcher) {
                     try {
@@ -193,25 +205,46 @@ class PlantRepository private constructor(
         }
     }
 
-    private fun shouldUpdatePlantsCache(): Boolean {
-        // Define your own logic to decide when cache is stale
+    /**
+     * Returns true if we should make a network request.
+     */
+    private suspend fun shouldUpdatePlantsCache(growZone: GrowZone): Boolean {
+        // suspending function, so you can e.g. check the status of the database here
         return true
     }
 
+    /**
+     * Update the plants cache.
+     *
+     * This function may decide to avoid making a network requests on every call based on a
+     * cache-invalidation policy.
+     */
     suspend fun tryUpdateRecentPlantsCache() {
-        if (shouldUpdatePlantsCache()) fetchRecentPlants()
+        if (shouldUpdatePlantsCache(NoGrowZone)) fetchRecentPlants()
     }
 
+    /**
+     * Update the plants cache for a specific grow zone.
+     *
+     * This function may decide to avoid making a network requests on every call based on a
+     * cache-invalidation policy.
+     */
     suspend fun tryUpdateRecentPlantsForGrowZoneCache(growZoneNumber: GrowZone) {
-        if (shouldUpdatePlantsCache()) fetchPlantsForGrowZone(growZoneNumber)
+        if (shouldUpdatePlantsCache(growZoneNumber)) fetchPlantsForGrowZone(growZoneNumber)
     }
 
+    /**
+     * Fetch a new list of plants from the network, and append them to [plantDao]
+     */
     private suspend fun fetchRecentPlants(): List<Plant> {
         val plants = plantService.allPlants()
         plantDao.insertAll(plants)
         return plants
     }
 
+    /**
+     * Fetch a list of plants for a grow zone from the network, and append them to [plantDao]
+     */
     private suspend fun fetchPlantsForGrowZone(growZoneNumber: GrowZone): List<Plant> {
         val plants = plantService.plantsByGrowZone(growZoneNumber)
         plantDao.insertAll(plants)
@@ -219,7 +252,6 @@ class PlantRepository private constructor(
     }
 
     companion object {
-
         // For Singleton instantiation
         @Volatile private var instance: PlantRepository? = null
 

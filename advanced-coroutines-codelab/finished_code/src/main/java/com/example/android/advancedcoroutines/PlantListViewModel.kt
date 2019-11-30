@@ -67,8 +67,14 @@ class PlantListViewModel internal constructor(
     val spinner: LiveData<Boolean>
         get() = _spinner
 
+    /**
+     * The current growZone selection.
+     */
     private val growZone = MutableLiveData<GrowZone>(NoGrowZone)
 
+    /**
+     * A list of plants that updates based on the current filter.
+     */
     val plants: LiveData<List<Plant>> = growZone.switchMap { growZone ->
         if (growZone == NoGrowZone) {
             plantRepository.plants
@@ -77,8 +83,14 @@ class PlantListViewModel internal constructor(
         }
     }
 
+    /**
+     * The current growZone selection (flow version)
+     */
     private val growZoneChannel = ConflatedBroadcastChannel<GrowZone>()
 
+    /**
+     * A list of plants that updates based on the current filter (flow version)
+     */
     val plantsUsingFlow: LiveData<List<Plant>> = growZoneChannel.asFlow()
         .flatMapLatest { growZone ->
             if (growZone == NoGrowZone) {
@@ -106,25 +118,38 @@ class PlantListViewModel internal constructor(
             .launchIn(viewModelScope)
     }
 
-
+    /**
+     * Filter the list to this grow zone.
+     *
+     * In the starter code version, this will also start a network request. After refactoring,
+     * updating the grow zone will automatically kickoff a network request.
+     */
     fun setGrowZoneNumber(num: Int) {
         growZone.value = GrowZone(num)
         growZoneChannel.offer(GrowZone(num))
 
-        // initial code version, will move out during flow rewrite
+        // initial code version, remove during flow rewrite
         launchDataLoad { plantRepository.tryUpdateRecentPlantsForGrowZoneCache(GrowZone(num)) }
     }
 
+    /**
+     * Clear the current filter of this plants list.
+     *
+     * In the starter code version, this will also start a network request. After refactoring,
+     * updating the grow zone will automatically kickoff a network request.
+     */
     fun clearGrowZoneNumber() {
         growZone.value = NoGrowZone
         growZoneChannel.offer(NoGrowZone)
 
-        // initial code version, will move out during flow rewrite
+        // initial code version, remove during flow rewrite
         launchDataLoad { plantRepository.tryUpdateRecentPlantsCache() }
     }
 
+    /**
+     * Return true iff the current list is filtered.
+     */
     fun isFiltered() = growZone.value != NoGrowZone
-
 
     /**
      * Called immediately after the UI shows the snackbar.
