@@ -16,7 +16,8 @@
 
 package com.example.android.advancedcoroutines
 
-import androidx.lifecycle.switchMap
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 
 /**
  * Repository module for handling data operations.
@@ -29,7 +30,8 @@ import androidx.lifecycle.switchMap
  */
 class PlantRepository private constructor(
     private val plantDao: PlantDao,
-    private val plantService: NetworkService
+    private val plantService: NetworkService,
+    private val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default
 ) {
 
     /**
