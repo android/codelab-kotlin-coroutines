@@ -17,7 +17,6 @@
 package com.example.android.advancedcoroutines
 
 import androidx.annotation.AnyThread
-import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
@@ -76,22 +75,22 @@ class PlantRepository private constructor(
      * This this similar to [plants], but uses *main-safe* transforms to avoid blocking the main
      * thread.
      */
-    fun getPlantsWithGrowZone(growZone: GrowZone) = plantDao.getPlantsWithGrowZoneNumber(growZone.number)
-        // Apply switchMap, which "switches" to a new liveData every time a new value is received
-        .switchMap { plantList ->
-            // Use the liveData builder to construct a new coroutine-backed LiveData
-            liveData {
-                // When we want to call suspend funs on each item you can nest a LiveData builder.
-                // Note: each level of nesting introduces another rotation / configuration change
-                // timeout.
-                val customSortOrder = getOrRefreshCachedSortOrder()
+    fun getPlantsWithGrowZone(growZone: GrowZone) =
+        plantDao.getPlantsWithGrowZoneNumber(growZone.number)
 
-                // Emit the sorted list to the inner LiveData builder, which will be the new value
-                // sent to getPlantsWithGrowZoneNumber
-                emit(plantList.applyMainSafeSort(customSortOrder))
+            // Apply switchMap, which "switches" to a new liveData every time a new value is
+            // received
+            .switchMap { plantList ->
+
+                // Use the liveData builder to construct a new coroutine-backed LiveData
+                liveData {
+                    val customSortOrder = getOrRefreshCachedSortOrder()
+
+                    // Emit the sorted list to the LiveData builder, which will be the new value
+                    // sent to getPlantsWithGrowZoneNumber
+                    emit(plantList.applyMainSafeSort(customSortOrder))
+                }
             }
-        }
-
     /**
      * Create a flow that calls a single function
      */
