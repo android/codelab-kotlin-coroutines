@@ -19,7 +19,7 @@ import org.junit.runner.Description
  * mainCoroutineRule.launch { aTestCoroutine() }
  * ```
  *
- * All coroutines started on [MainCoroutineRule] must complete (including timeouts) before the test
+ * All coroutines started on [MainCoroutineScopeRule] must complete (including timeouts) before the test
  * finishes, or it will throw an exception.
  *
  * When using MainCoroutineRule you should always invoke runBlockingTest on it to avoid creating two
@@ -32,7 +32,7 @@ import org.junit.runner.Description
  * }
  * ```
  *
- * You may call [DelayController] methods on [MainCoroutineRule] and they will control the
+ * You may call [DelayController] methods on [MainCoroutineScopeRule] and they will control the
  * virtual-clock.
  *
  * ```
@@ -41,16 +41,22 @@ import org.junit.runner.Description
  * mainCoroutineRule.advanceUntilIdle() // run all pending coroutines until the dispatcher is idle
  * ```
  *
- * By default, [MainCoroutineRule] will be in a *resumed* state.
+ * By default, [MainCoroutineScopeRule] will be in a *resumed* state.
  *
  * @param dispatcher if provided, this [TestCoroutineDispatcher] will be used.
  */
 @ExperimentalCoroutinesApi
-class MainCoroutineRule(val dispatcher: TestCoroutineDispatcher = TestCoroutineDispatcher()):
+class MainCoroutineScopeRule(val dispatcher: TestCoroutineDispatcher = TestCoroutineDispatcher()):
         TestWatcher(),
         TestCoroutineScope by TestCoroutineScope(dispatcher) {
     override fun starting(description: Description?) {
         super.starting(description)
+        // If your codebase allows the injection of other dispatchers like
+        // Dispatchers.Default and Dispatchers.IO, consider injecting all of them here
+        // and renaming this class to `CoroutineScopeRule`
+        //
+        // All injected dispatchers in a test should point to a single instance of
+        // TestCoroutineDispatcher.
         Dispatchers.setMain(dispatcher)
     }
 
