@@ -3,14 +3,14 @@ package com.example.android.kotlincoroutines.main
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.android.kotlincoroutines.fakes.MainNetworkFake
 import com.example.android.kotlincoroutines.fakes.TitleDaoFake
-import com.example.android.kotlincoroutines.main.utils.MainCoroutineRule
+import com.example.android.kotlincoroutines.main.utils.MainCoroutineScopeRule
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
 class MainViewModelTest {
     @get:Rule
-    val mainCoroutineRule =  MainCoroutineRule()
+    val mainCoroutineRule =  MainCoroutineScopeRule()
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
