@@ -4,7 +4,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.android.kotlincoroutines.fakes.MainNetworkCompletableFake
 import com.example.android.kotlincoroutines.fakes.MainNetworkFake
 import com.example.android.kotlincoroutines.fakes.TitleDaoFake
-import com.example.android.kotlincoroutines.main.utils.MainCoroutineRule
+import com.example.android.kotlincoroutines.main.utils.MainCoroutineScopeRule
 import com.example.android.kotlincoroutines.main.utils.captureValues
 import com.example.android.kotlincoroutines.main.utils.getValueForTest
 import com.google.common.truth.Truth
@@ -27,7 +27,7 @@ class MainViewModelTest {
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
     @get:Rule
-    val mainCoroutineRule = MainCoroutineRule()
+    val mainCoroutineRule = MainCoroutineScopeRule()
 
     lateinit var subject: MainViewModel
 
