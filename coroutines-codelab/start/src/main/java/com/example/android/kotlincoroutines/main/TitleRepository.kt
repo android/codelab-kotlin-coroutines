@@ -42,6 +42,8 @@ class TitleRepository(val network: MainNetwork, val titleDao: TitleDao) {
     val title: LiveData<String?> = titleDao.titleLiveData.map { it?.title }
 
 
+    // TODO: Add coroutines-based `fun refreshTitle` here
+
     /**
      * Refresh the current title and save the results to the offline cache.
      *

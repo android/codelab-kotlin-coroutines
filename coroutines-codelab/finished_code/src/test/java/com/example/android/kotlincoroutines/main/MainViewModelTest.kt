@@ -43,7 +43,7 @@ class MainViewModelTest {
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
     @get:Rule
-    val mainCoroutineRule = MainCoroutineScopeRule()
+    val coroutineScope = MainCoroutineScopeRule()
 
     lateinit var subject: MainViewModel
 
@@ -60,7 +60,7 @@ class MainViewModelTest {
     fun whenMainClicked_updatesTaps() {
         subject.onMainViewClicked()
         Truth.assertThat(subject.taps.getValueForTest()).isEqualTo("0 taps")
-        mainCoroutineRule.advanceTimeBy(1000)
+        coroutineScope.advanceTimeBy(1000)
         Truth.assertThat(subject.taps.getValueForTest()).isEqualTo("1 taps")
     }
 
@@ -70,7 +70,7 @@ class MainViewModelTest {
     }
 
     @Test
-    fun whenSuccessfulTitleLoad_itShowsAndHidesSpinner() = mainCoroutineRule.runBlockingTest {
+    fun whenSuccessfulTitleLoad_itShowsAndHidesSpinner() = coroutineScope.runBlockingTest {
         val network = MainNetworkCompletableFake()
 
         subject = MainViewModel(
@@ -89,7 +89,7 @@ class MainViewModelTest {
     }
 
     @Test
-    fun whenErrorTitleReload_itShowsErrorAndHidesSpinner() = mainCoroutineRule.runBlockingTest {
+    fun whenErrorTitleReload_itShowsErrorAndHidesSpinner() = coroutineScope.runBlockingTest {
         val network = MainNetworkCompletableFake()
         subject = MainViewModel(
                 TitleRepository(
@@ -108,7 +108,7 @@ class MainViewModelTest {
     }
 
     @Test
-    fun whenErrorTitleReload_itShowsErrorText() = mainCoroutineRule.runBlockingTest {
+    fun whenErrorTitleReload_itShowsErrorText() = coroutineScope.runBlockingTest {
         val network = MainNetworkCompletableFake()
         subject = MainViewModel(
                 TitleRepository(
@@ -125,7 +125,7 @@ class MainViewModelTest {
     }
 
     @Test
-    fun whenMainViewClicked_titleIsRefreshed() = mainCoroutineRule.runBlockingTest {
+    fun whenMainViewClicked_titleIsRefreshed() = coroutineScope.runBlockingTest {
         val titleDao = TitleDaoFake("title")
         subject = MainViewModel(
                 TitleRepository(
