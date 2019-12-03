@@ -26,7 +26,7 @@ import org.junit.Test
 
 class MainViewModelTest {
     @get:Rule
-    val mainCoroutineRule =  MainCoroutineScopeRule()
+    val coroutineScope =  MainCoroutineScopeRule()
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
