@@ -49,7 +49,7 @@ class PlantRepository private constructor(
 ) {
 
     // Cache for storing the custom sort order
-    private var plantsListSortOrderCache = CacheOnSuccess<List<String>>(onErrorFallback = { listOf() }) {
+    private var plantsListSortOrderCache = CacheOnSuccess(onErrorFallback = { listOf<String>() }) {
         plantService.customPlantSortOrder()
     }
 
