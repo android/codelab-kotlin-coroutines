@@ -21,14 +21,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
+import com.example.android.advancedcoroutines.util.CacheOnSuccess
 import com.example.android.advancedcoroutines.utils.ComparablePair
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.combine
@@ -51,7 +49,9 @@ class PlantRepository private constructor(
 ) {
 
     // Cache for storing the custom sort order
-    private var sortOrderLoader: Deferred<List<String>>? = null
+    private var plantsListSortOrderCache = CacheOnSuccess<List<String>>(onErrorFallback = { listOf() }) {
+        plantService.customPlantSortOrder()
+    }
 
     /**
      * Fetch a list of [Plant]s from the database and apply a custom sort order to the list.
@@ -62,7 +62,7 @@ class PlantRepository private constructor(
         val plantsLiveData = plantDao.getPlants()
 
         // Fetch our custom sort from the network in a main-safe suspending call (cached)
-        val customSortOrder = getOrRefreshCachedSortOrder()
+        val customSortOrder = plantsListSortOrderCache.getOrAwait()
 
         // Map the LiveData, applying the sort criteria
         emitSource(plantsLiveData.map { plantList -> plantList.applySort(customSortOrder) })
@@ -84,7 +84,7 @@ class PlantRepository private constructor(
 
                 // Use the liveData builder to construct a new coroutine-backed LiveData
                 liveData {
-                    val customSortOrder = getOrRefreshCachedSortOrder()
+                    val customSortOrder = plantsListSortOrderCache.getOrAwait()
 
                     // Emit the sorted list to the LiveData builder, which will be the new value
                     // sent to getPlantsWithGrowZoneNumber
@@ -94,7 +94,7 @@ class PlantRepository private constructor(
     /**
      * Create a flow that calls a single function
      */
-    private val customSortFlow = suspend { getOrRefreshCachedSortOrder() }.asFlow()
+    private val customSortFlow = plantsListSortOrderCache::getOrAwait.asFlow()
 
     /**
      * This is a version of [plants] (from above), and represent our observable database using
@@ -148,7 +148,7 @@ class PlantRepository private constructor(
                 // This may trigger a network request if it's not yet cached, but since the network
                 // call is main safe, we won't block the main thread (even though this flow executes
                 // on Dispatchers.Main).
-                val sortOrderFromNetwork = getOrRefreshCachedSortOrder()
+                val sortOrderFromNetwork = plantsListSortOrderCache.getOrAwait()
 
                 // The result will be the sorted list with custom sort order applied. Note that this
                 // call is also main-safe due to using applyMainSafeSort.
@@ -180,30 +180,6 @@ class PlantRepository private constructor(
         withContext(defaultDispatcher) {
             this@applyMainSafeSort.applySort(customSortOrder)
         }
-
-    /**
-     * Loads the plant sort order from an in-memory cache. If the cache is null, fetch sort order
-     * from network.
-     */
-    private suspend fun getOrRefreshCachedSortOrder(): List<String> {
-        // Load the value from the network once, then cache it after
-        return coroutineScope {
-            // This is synchronized because assigning the variable sortOrderLoader from
-            // Dispatchers.Default needs to be guarded from multiple threads writing.
-            synchronized(this) {
-                val loader: Deferred<List<String>> = sortOrderLoader ?: async(defaultDispatcher) {
-                    try {
-                        return@async plantService.customPlantSortOrder()
-                    } catch (ex: Throwable) {
-                        sortOrderLoader = null // don't cache this default value
-                        return@async emptyList<String>()
-                    }
-                }
-                sortOrderLoader = loader
-                loader
-            }.await()
-        }
-    }
 
     /**
      * Returns true if we should make a network request.

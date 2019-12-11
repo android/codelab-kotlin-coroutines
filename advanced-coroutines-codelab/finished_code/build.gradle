@@ -40,7 +40,7 @@ dependencies {
     implementation libraries
     implementation arch_libraries
     kapt librariesKapt
-    debugImplementation librariesDebug
+    debugImplementation truthLibrary
 
     testImplementation testLibraries
     androidTestImplementation androidTestLibraries
