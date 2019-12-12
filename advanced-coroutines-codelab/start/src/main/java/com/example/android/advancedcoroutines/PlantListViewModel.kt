@@ -39,12 +39,12 @@ class PlantListViewModel internal constructor(
      * MutableLiveData allows anyone to set a value, and [PlantListViewModel] is the only
      * class that should be setting values.
      */
-    private val _snackbar = MutableLiveData<String>()
+    private val _snackbar = MutableLiveData<String?>()
 
     /**
      * Request a snackbar to display a string.
      */
-    val snackbar: LiveData<String>
+    val snackbar: LiveData<String?>
         get() = _snackbar
 
     private val _spinner = MutableLiveData<Boolean>(false)
@@ -105,6 +105,13 @@ class PlantListViewModel internal constructor(
      * Return true iff the current list is filtered.
      */
     fun isFiltered() = growZone.value != NoGrowZone
+
+    /**
+     * Called immediately after the UI shows the snackbar.
+     */
+    fun onSnackbarShown() {
+        _snackbar.value = null
+    }
 
     /**
      * Helper function to call a data load function with a loading spinner; errors will trigger a

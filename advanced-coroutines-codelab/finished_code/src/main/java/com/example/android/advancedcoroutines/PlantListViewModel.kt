@@ -31,6 +31,8 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 /**
@@ -52,12 +54,12 @@ class PlantListViewModel internal constructor(
      * MutableLiveData allows anyone to set a value, and [PlantListViewModel] is the only
      * class that should be setting values.
      */
-    private val _snackbar = MutableLiveData<String>()
+    private val _snackbar = MutableLiveData<String?>()
 
     /**
      * Request a snackbar to display a string.
      */
-    val snackbar: LiveData<String>
+    val snackbar: LiveData<String?>
         get() = _snackbar
 
     private val _spinner = MutableLiveData<Boolean>(false)
@@ -111,10 +113,9 @@ class PlantListViewModel internal constructor(
                 } else {
                     plantRepository.tryUpdateRecentPlantsForGrowZoneCache(growZone)
                 }
-                _spinner.value = false
             }
-            // Catch potential error from making a network request
-            .catch { throwable -> _snackbar.value = throwable.message }
+            .onCompletion {  _spinner.value = false }
+            .catch { throwable ->  _snackbar.value = throwable.message  }
             .launchIn(viewModelScope)
     }
 
