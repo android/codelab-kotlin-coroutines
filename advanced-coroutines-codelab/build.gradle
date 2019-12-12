@@ -72,10 +72,6 @@ buildscript {
                 "com.github.bumptech.glide:compiler:$glide_version"
         ]
 
-        truthLibrary = [
-                "com.google.truth:truth:$truth_version"
-        ]
-
         testLibraries = [
                 "junit:junit:$junit_version",
                 // Coroutines testing
@@ -85,7 +81,9 @@ buildscript {
                 "org.mockito:mockito-core:2.23.0",
 
                 //  Architecture Components testing libraries
-                "androidx.arch.core:core-testing:$lifecycle_version"
+                "androidx.arch.core:core-testing:$lifecycle_version",
+
+                "com.google.truth:truth:$truth_version",
         ]
 
         androidTestLibraries = [
