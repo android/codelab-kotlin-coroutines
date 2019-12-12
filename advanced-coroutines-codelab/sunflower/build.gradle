@@ -30,6 +30,5 @@ dependencies {
     implementation arch_libraries
     kapt librariesKapt
     testImplementation testLibraries
-    testImplementation truthLibrary
     androidTestImplementation androidTestLibraries
 }
