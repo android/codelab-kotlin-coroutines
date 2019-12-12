@@ -31,6 +31,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
@@ -212,10 +213,9 @@ class PlantRepository private constructor(
     /**
      * Fetch a new list of plants from the network, and append them to [plantDao]
      */
-    private suspend fun fetchRecentPlants(): List<Plant> {
+    private suspend fun fetchRecentPlants() {
         val plants = plantService.allPlants()
         plantDao.insertAll(plants)
-        return plants
     }
 
     /**

@@ -33,6 +33,7 @@ import com.example.android.advancedcoroutines.PlantRepository
 import com.example.android.advancedcoroutines.R
 import com.example.android.advancedcoroutines.databinding.FragmentPlantListBinding
 import com.example.android.advancedcoroutines.utils.Injector
+import com.google.android.material.snackbar.Snackbar
 
 class PlantListFragment : Fragment() {
 
@@ -47,6 +48,19 @@ class PlantListFragment : Fragment() {
     ): View? {
         val binding = FragmentPlantListBinding.inflate(inflater, container, false)
         context ?: return binding.root
+
+        // show the spinner when [MainViewModel.spinner] is true
+        viewModel.spinner.observe(viewLifecycleOwner) { show ->
+            binding.spinner.visibility = if (show) View.VISIBLE else View.GONE
+        }
+
+        // Show a snackbar whenever the [ViewModel.snackbar] is updated a non-null value
+        viewModel.snackbar.observe(viewLifecycleOwner) { text ->
+            text?.let {
+                Snackbar.make(binding.root, text, Snackbar.LENGTH_SHORT).show()
+                viewModel.onSnackbarShown()
+            }
+        }
 
         val adapter = PlantAdapter()
         binding.plantList.adapter = adapter
