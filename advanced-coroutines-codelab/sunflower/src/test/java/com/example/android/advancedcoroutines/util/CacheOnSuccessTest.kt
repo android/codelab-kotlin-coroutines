@@ -1,10 +1,14 @@
 package com.example.android.advancedcoroutines.util
 
-import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runBlockingTest
-import org.junit.Assert.*
+import kotlinx.coroutines.withTimeout
 import org.junit.Test
 
 class CacheOnSuccessTest {
