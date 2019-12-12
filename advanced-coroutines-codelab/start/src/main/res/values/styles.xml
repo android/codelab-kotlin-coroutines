@@ -1,7 +1,7 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="Base.Theme.Sunflower" parent="Theme.MaterialComponents.DayNight">
+    <style name="Base.Theme.Sunflower" parent="Theme.MaterialComponents.Light">
         <item name="colorPrimary">@color/sunflower_green_500</item>
         <item name="colorOnPrimary">@color/sunflower_yellow_500</item>
         <item name="colorPrimaryDark">@color/sunflower_green_700</item>
