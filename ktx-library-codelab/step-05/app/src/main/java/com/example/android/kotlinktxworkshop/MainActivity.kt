@@ -32,6 +32,7 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -51,31 +52,28 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-
-        lifecycleScope.launchWhenStarted {
-            // only get results when the Activity is in the started state
-            try {
-                getLastKnownLocation()
-            } catch (e: Exception) {
-                findAndSetText(R.id.textView, "Unable to get location.")
-                Log.d(TAG, "Unable to get location", e)
-            }
-        }
     }
 
     override fun onStart() {
         super.onStart()
-
         if (!hasPermission(ACCESS_FINE_LOCATION)) {
             requestPermissions(arrayOf(ACCESS_FINE_LOCATION), 0)
         }
 
+        lifecycleScope.launch {
+            getLastKnownLocation()
+        }
         startUpdatingLocation()
     }
 
     private suspend fun getLastKnownLocation() {
-        val lastLocation = fusedLocationClient.awaitLastLocation()
-        showLocation(R.id.textView, lastLocation)
+        try {
+            val lastLocation = fusedLocationClient.awaitLastLocation()
+            showLocation(R.id.textView, lastLocation)
+        } catch (e: Exception) {
+            findAndSetText(R.id.textView, "Unable to get location.")
+            Log.d(TAG, "Unable to get location", e)
+        }
     }
 
     private fun startUpdatingLocation() {
