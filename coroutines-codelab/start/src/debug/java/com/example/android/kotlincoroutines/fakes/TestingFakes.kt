@@ -77,7 +77,7 @@ class TitleDaoFake(initialTitle: String) : TitleDao {
             // wait for the next insertion to complete
             try {
                 withTimeout(timeout) {
-                    result =  insertedForNext.receive().title
+                    result = insertedForNext.receive().title
                 }
             } catch (ex: TimeoutCancellationException) {
                 // ignore
@@ -97,7 +97,7 @@ class MainNetworkFake(var result: String) : MainNetwork {
 /**
  * Testing Fake for MainNetwork that lets you complete or error all current requests
  */
-class MainNetworkCompletableFake(): MainNetwork {
+class MainNetworkCompletableFake() : MainNetwork {
     private var completable = CompletableDeferred<String>()
 
     override fun fetchNextTitle() = MakeCompilerHappyForStarterCode() // TODO: replace with `completable.await()`
@@ -106,6 +106,7 @@ class MainNetworkCompletableFake(): MainNetwork {
         completable.complete(result)
         completable = CompletableDeferred()
     }
+
     fun sendErrorToCurrentRequests(throwable: Throwable) {
         completable.completeExceptionally(throwable)
         completable = CompletableDeferred()
@@ -119,7 +120,7 @@ typealias MakeCompilerHappyForStarterCode = FakeCallForRetrofit<String>
  * This class only exists to make the starter code compile. Remove after refactoring retrofit to use
  * suspend functions.
  */
-class FakeCallForRetrofit<T>: Call<T> {
+class FakeCallForRetrofit<T> : Call<T> {
     override fun enqueue(callback: Callback<T>) {
         // nothing
     }

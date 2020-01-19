@@ -26,7 +26,7 @@ import org.junit.Test
 
 class MainViewModelTest {
     @get:Rule
-    val coroutineScope =  MainCoroutineScopeRule()
+    val coroutineScope = MainCoroutineScopeRule()
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
@@ -35,10 +35,10 @@ class MainViewModelTest {
     @Before
     fun setup() {
         subject = MainViewModel(
-            TitleRepository(
-                    MainNetworkFake("OK"),
-                    TitleDaoFake("initial")
-            ))
+                TitleRepository(
+                        MainNetworkFake("OK"),
+                        TitleDaoFake("initial")
+                ))
     }
 
     @Test

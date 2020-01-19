@@ -33,7 +33,7 @@ private val FAKE_RESULTS = listOf(
 /**
  * This class will return fake [Response] objects to Retrofit, without actually using the network.
  */
-class SkipNetworkInterceptor: Interceptor {
+class SkipNetworkInterceptor : Interceptor {
     private var lastResult: String = ""
     val gson = Gson()
 

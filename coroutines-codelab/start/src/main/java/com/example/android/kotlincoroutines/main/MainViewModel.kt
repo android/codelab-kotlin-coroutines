@@ -78,7 +78,7 @@ class MainViewModel(private val repository: TitleRepository) : ViewModel() {
     /**
      * LiveData with formatted tap count.
      */
-    private val _taps =  MutableLiveData<String>("$tapCount taps")
+    private val _taps = MutableLiveData<String>("$tapCount taps")
 
     /**
      * Public view of tap live data.
@@ -122,7 +122,7 @@ class MainViewModel(private val repository: TitleRepository) : ViewModel() {
     fun refreshTitle() {
         // TODO: Convert refreshTitle to use coroutines
         _spinner.value = true
-        repository.refreshTitleWithCallbacks(object: TitleRefreshCallback {
+        repository.refreshTitleWithCallbacks(object : TitleRefreshCallback {
             override fun onCompleted() {
                 _spinner.postValue(false)
             }
