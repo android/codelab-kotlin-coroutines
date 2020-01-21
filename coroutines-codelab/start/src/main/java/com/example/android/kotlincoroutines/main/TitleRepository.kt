@@ -51,7 +51,7 @@ class TitleRepository(val network: MainNetwork, val titleDao: TitleDao) {
      * the current tile.
      */
     fun refreshTitleWithCallbacks(titleRefreshCallback: TitleRefreshCallback) {
-        // This request will be run on a background thread by retrift
+        // This request will be run on a background thread by retrofit
         BACKGROUND.submit {
             try {
                 // Make network request using a blocking call

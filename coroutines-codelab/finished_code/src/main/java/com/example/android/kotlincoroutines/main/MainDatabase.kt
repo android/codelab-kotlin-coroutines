@@ -63,13 +63,13 @@ fun getDatabase(context: Context): TitleDatabase {
     synchronized(TitleDatabase::class) {
         if (!::INSTANCE.isInitialized) {
             INSTANCE = Room
-                .databaseBuilder(
-                        context.applicationContext,
-                        TitleDatabase::class.java,
-                        "titles_db"
-                )
-                .fallbackToDestructiveMigration()
-                .build()
+                    .databaseBuilder(
+                            context.applicationContext,
+                            TitleDatabase::class.java,
+                            "titles_db"
+                    )
+                    .fallbackToDestructiveMigration()
+                    .build()
         }
     }
     return INSTANCE
