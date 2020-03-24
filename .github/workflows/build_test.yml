@@ -34,6 +34,7 @@ jobs:
         java-version: 1.8
           
     - name: Build and check
+      working-directory: coroutines-codelab
       run: ./gradlew assembleDebug assembleDebugAndroidTest app:lintDebug testDebug
 
     # TODO: other steps
