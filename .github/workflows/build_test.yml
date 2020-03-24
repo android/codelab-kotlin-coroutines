@@ -37,4 +37,17 @@ jobs:
       working-directory: coroutines-codelab
       run: ./gradlew assembleDebug assembleDebugAndroidTest start:lintDebug finished_code:lintDebug testDebug
 
-    # TODO: other steps
+    - name: Copy test results
+      if: always()
+      run: |
+        mkdir -p junit
+        find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} junit/ \;
+        
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v1
+      with:
+        name: junit-results
+        path: junit
+
+    # TODO: add FTL
