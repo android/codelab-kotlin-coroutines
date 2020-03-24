@@ -33,8 +33,8 @@ jobs:
       with:
         java-version: 1.8
           
-    - name: Build and check
+    - name: Build and check all modules
       working-directory: coroutines-codelab
-      run: ./gradlew assembleDebug assembleDebugAndroidTest app:lintDebug testDebug
+      run: ./gradlew assembleDebug assembleDebugAndroidTest start:lintDebug finished_code:lintDebug testDebug
 
     # TODO: other steps
