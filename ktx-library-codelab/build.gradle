@@ -15,7 +15,34 @@
  */
 
 buildscript {
-    ext.kotlin_version = '1.3.60'
+    ext.kotlin_versionsion = '1.4.21'
+    ext {
+        def appcompat_version = "1.2.0"
+        def corektx_version = "1.3.2"
+        def coroutines_version = "1.4.2"
+        def location_version = "17.1.0"
+        def constraintlayout_version = "2.0.4"
+        def lifecycle_runtime_ktx_version = "2.3.0-rc01"
+        def lifecycle_livedata_ktx_version = "2.3.0-rc01"
+
+        ktxlib_libraries_impl = [
+                "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_versionsion",
+                "androidx.appcompat:appcompat:$appcompat_version",
+                "androidx.core:core-ktx:$corektx_version"
+        ]
+        ktxlib_libraries_api = [
+                "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version",
+                "com.google.android.gms:play-services-location:$location_version"
+        ]
+        app_libraries = [
+                "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_versionsion",
+                "androidx.appcompat:appcompat:$appcompat_version",
+                "androidx.core:core-ktx:$corektx_version",
+                "androidx.constraintlayout:constraintlayout:$constraintlayout_version",
+                "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_runtime_ktx_version",
+                "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_livedata_ktx_version"
+        ]
+    }
     repositories {
         google()
         jcenter()
@@ -24,8 +51,8 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.2'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.android.tools.build:gradle:4.1.2'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_versionsion"
     }
 }
 
