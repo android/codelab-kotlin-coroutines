@@ -16,6 +16,7 @@
 
 package com.example.android.myktxlibrary
 
+import android.annotation.SuppressLint
 import android.location.Location
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationRequest
@@ -35,6 +36,7 @@ fun Location.asString(format: Int = Location.FORMAT_DEGREES): String {
     return "Location is: $latitude, $longitude"
 }
 
+@SuppressLint("MissingPermission")
 suspend fun FusedLocationProviderClient.awaitLastLocation(): Location =
     suspendCancellableCoroutine { continuation ->
         lastLocation.addOnSuccessListener { location ->

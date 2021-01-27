@@ -16,6 +16,7 @@
 
 package com.example.android.myktxlibrary
 
+import android.annotation.SuppressLint
 import android.location.Location
 import android.os.Looper
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -40,8 +41,9 @@ fun Location.asString(format: Int = Location.FORMAT_DEGREES): String {
     return "Location is: $latitude, $longitude"
 }
 
+@SuppressLint("MissingPermission")
 suspend fun FusedLocationProviderClient.awaitLastLocation(): Location =
-    suspendCancellableCoroutine { continuation ->
+    suspendCancellableCoroutine<Location> { continuation ->
         lastLocation.addOnSuccessListener { location ->
             continuation.resume(location)
         }.addOnFailureListener { e ->
@@ -49,12 +51,18 @@ suspend fun FusedLocationProviderClient.awaitLastLocation(): Location =
         }
     }
 
+@SuppressLint("MissingPermission")
 fun FusedLocationProviderClient.locationFlow() = callbackFlow<Location> {
     val callback = object : LocationCallback() {
         override fun onLocationResult(result: LocationResult?) {
             result ?: return
             for (location in result.locations) {
-                offer(location) // emit location into the Flow using ProducerScope.offer
+                try {
+                    offer(location) // emit location into the Flow using ProducerScope.offer
+                } catch (e: Exception) {
+                    // nothing to do
+                    // Channel was probably already closed by the time offer was called
+                }
             }
         }
     }
