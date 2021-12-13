@@ -20,7 +20,7 @@ buildscript {
     ext {
 
         // global variables
-        kotlin_version = '1.6.0'
+        kotlin_version = '1.5.31'
 
         // local variables (use def)
         def androidx_test_version = '1.3.0'
