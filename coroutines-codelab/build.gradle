@@ -27,7 +27,7 @@ buildscript {
         def appcompat_version = '1.1.0'
         def constraint_layout_version = '1.1.3'
         def coroutines_android_version = '1.3.2'
-        def expresso_version = '3.2.0'
+        def espresso_version = '3.2.0'
         def gson_version = '2.8.6'
         def junit_version = '4.12'
         def lifecycle_version = '2.1.0'
@@ -95,9 +95,9 @@ buildscript {
                 "androidx.test:rules:$androidx_test_version",
 
                 // Espresso
-                "androidx.test.espresso:espresso-core:$expresso_version",
-                "androidx.test.espresso:espresso-contrib:$expresso_version",
-                "androidx.test.espresso:espresso-intents:$expresso_version",
+                "androidx.test.espresso:espresso-core:$espresso_version",
+                "androidx.test.espresso:espresso-contrib:$espresso_version",
+                "androidx.test.espresso:espresso-intents:$espresso_version",
 
                 //  Architecture Components testing libraries
                 "androidx.arch.core:core-testing:$lifecycle_version",
