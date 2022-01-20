@@ -15,18 +15,17 @@
  */
 
 buildscript {
-    ext.kotlin_versionsion = '1.4.21'
+    ext.kotlin_version = '1.6.10'
     ext {
-        def appcompat_version = "1.2.0"
-        def corektx_version = "1.3.2"
-        def coroutines_version = "1.4.2"
-        def location_version = "17.1.0"
-        def constraintlayout_version = "2.0.4"
-        def lifecycle_runtime_ktx_version = "2.3.0-rc01"
-        def lifecycle_livedata_ktx_version = "2.3.0-rc01"
+        def appcompat_version = "1.4.0"
+        def corektx_version = "1.7.0"
+        def coroutines_version = "1.6.0"
+        def location_version = "17.0.0"
+        def constraintlayout_version = "2.1.2"
+        def lifecycle_runtime_ktx_version = "2.4.0"
+        def lifecycle_livedata_ktx_version = "2.4.0"
 
         ktxlib_libraries_impl = [
-                "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_versionsion",
                 "androidx.appcompat:appcompat:$appcompat_version",
                 "androidx.core:core-ktx:$corektx_version"
         ]
@@ -35,7 +34,6 @@ buildscript {
                 "com.google.android.gms:play-services-location:$location_version"
         ]
         app_libraries = [
-                "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_versionsion",
                 "androidx.appcompat:appcompat:$appcompat_version",
                 "androidx.core:core-ktx:$corektx_version",
                 "androidx.constraintlayout:constraintlayout:$constraintlayout_version",
@@ -45,23 +43,23 @@ buildscript {
     }
     repositories {
         google()
-        jcenter()
+        mavenCentral()
         maven {
-            url "http://dl.bintray.com/kotlin/kotlin-eap"
+            url "https://dl.bintray.com/kotlin/kotlin-eap"
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.1.2'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_versionsion"
+        classpath 'com.android.tools.build:gradle:7.0.4'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
 allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
         maven {
-            url "http://dl.bintray.com/kotlin/kotlin-eap"
+            url "https://dl.bintray.com/kotlin/kotlin-eap"
         }
     }
 }
