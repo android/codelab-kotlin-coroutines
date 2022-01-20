@@ -58,10 +58,8 @@ fun FusedLocationProviderClient.locationFlow() = callbackFlow<Location> {
             result ?: return
             for (location in result.locations) {
                 try {
-                    trySend(location).isSuccess // emit location into the Flow using ProducerScope.offer
-                } catch (e: Exception) {
-                    // nothing to do
-                    // Channel was probably already closed by the time offer was called
+                    trySend(location) // emit location into the Flow using ProducerScope.offer
+                } finally {
                 }
             }
         }
