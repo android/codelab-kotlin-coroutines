@@ -17,7 +17,7 @@
 buildscript {
     ext.kotlin_version = '1.6.10'
     ext {
-        def appcompat_version = "1.4.0"
+        def appcompat_version = "1.4.1"
         def corektx_version = "1.7.0"
         def coroutines_version = "1.6.0"
         def location_version = "17.0.0"
