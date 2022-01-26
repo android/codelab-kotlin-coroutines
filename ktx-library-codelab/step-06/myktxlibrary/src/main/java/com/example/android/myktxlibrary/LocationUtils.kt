@@ -57,9 +57,7 @@ fun FusedLocationProviderClient.locationFlow() = callbackFlow<Location> {
         override fun onLocationResult(result: LocationResult?) {
             result ?: return
             for (location in result.locations) {
-                try {
                     trySend(location) // emit location into the Flow using ProducerScope.offer
-                } finally {
                 }
             }
         }
