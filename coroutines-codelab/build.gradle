@@ -30,7 +30,7 @@ buildscript {
         def espresso_version = '3.4.0'
         def gson_version = '2.8.9'
         def junit_version = '4.13.2'
-        def lifecycle_version = '2.4.0'
+        def lifecycle_version = '2.2.0'
         def livedata_version = '2.4.0'
         def material_version = '1.5.0'
         def retrofit_gson_version = '2.9.0'
