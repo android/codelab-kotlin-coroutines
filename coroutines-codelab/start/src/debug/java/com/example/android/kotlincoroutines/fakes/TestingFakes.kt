@@ -27,6 +27,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import okhttp3.Request
+import okio.Timeout
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -143,6 +144,10 @@ class FakeCallForRetrofit<T> : Call<T> {
 
     override fun request(): Request {
         TODO("Not implemented")
+    }
+
+    override fun timeout(): Timeout {
+        TODO("Not yet implemented")
     }
 
 }
