@@ -3,18 +3,22 @@ package com.example.android.advancedcoroutines.util
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeout
 import org.junit.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class CacheOnSuccessTest {
 
     @Test
-    fun getOrAwait_caches() = runBlockingTest {
+    fun getOrAwait_caches() = runTest {
         var counter = 0
         val subject = CacheOnSuccess {
             counter++
@@ -26,7 +30,7 @@ class CacheOnSuccessTest {
     }
 
     @Test
-    fun getOrAwait_reentrant_caches() = runBlockingTest {
+    fun getOrAwait_reentrant_caches() = runTest {
         val completable = CompletableDeferred<Unit>()
         var counter = 0
 
@@ -49,10 +53,10 @@ class CacheOnSuccessTest {
         assertThat(counter).isEqualTo(1)
     }
 
-    class SomeException: Throwable()
+    class SomeException : Throwable()
 
     @Test
-    fun getOrAwait_throws() = runBlockingTest {
+    fun getOrAwait_throws() = runTest {
         val subject = CacheOnSuccess {
             throw SomeException()
         }
@@ -62,10 +66,10 @@ class CacheOnSuccessTest {
     }
 
     @Test
-    fun getOrAwait_doesntCacheExceptions() = runBlockingTest {
+    fun getOrAwait_doesntCacheExceptions() = runTest {
         var counter = 0
         val subject = CacheOnSuccess {
-            if(counter++ == 0) {
+            if (counter++ == 0) {
                 throw SomeException()
             } else {
                 counter
@@ -77,7 +81,7 @@ class CacheOnSuccessTest {
     }
 
     @Test
-    fun getOrAwait_propagatesCancellation() = runBlockingTest {
+    fun getOrAwait_propagatesCancellation() = runTest {
         val subject = CacheOnSuccess {
             withTimeout(100) {
                 delay(100)
@@ -89,7 +93,7 @@ class CacheOnSuccessTest {
     }
 
     @Test(expected = TimeoutCancellationException::class)
-    fun getOrAwait_propagatesCancellation_evenWithFallback() = runBlockingTest {
+    fun getOrAwait_propagatesCancellation_evenWithFallback() = runTest {
         var called = false
         val subject = CacheOnSuccess(onErrorFallback = { called = true; 5 }) {
             withTimeout(100) {
@@ -107,9 +111,9 @@ class CacheOnSuccessTest {
     }
 
     @Test
-    fun getOrAwait_fallsBackOnException() = runBlockingTest {
+    fun getOrAwait_fallsBackOnException() = runTest {
         var calls = 0
-        val subject = CacheOnSuccess(onErrorFallback = { calls++ } ) {
+        val subject = CacheOnSuccess(onErrorFallback = { calls++ }) {
             throw SomeException()
         }
 
@@ -119,9 +123,9 @@ class CacheOnSuccessTest {
     }
 
     @Test
-    fun getOrAwait_fallsBackOnException_withMultipleAwaits() = runBlockingTest {
+    fun getOrAwait_fallsBackOnException_withMultipleAwaits() = runTest {
         var calls = 0
-        val subject = CacheOnSuccess(onErrorFallback = { calls++ } ) {
+        val subject = CacheOnSuccess(onErrorFallback = { calls++ }) {
             delay(100)
             throw SomeException()
         }
@@ -129,6 +133,8 @@ class CacheOnSuccessTest {
         launch { subject.getOrAwait() }
         launch { subject.getOrAwait() }
         launch { subject.getOrAwait() }
+
+        advanceUntilIdle()
 
         assertThat(subject.getOrAwait()).isEqualTo(3)
         assertThat(calls).isEqualTo(4)
