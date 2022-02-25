@@ -19,14 +19,17 @@ package com.example.android.kotlincoroutines.main
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.android.kotlincoroutines.fakes.MainNetworkFake
 import com.example.android.kotlincoroutines.fakes.TitleDaoFake
-import com.example.android.kotlincoroutines.main.utils.MainCoroutineScopeRule
+import com.example.android.kotlincoroutines.main.utils.MainCoroutineRule
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class MainViewModelTest {
     @get:Rule
-    val coroutineScope = MainCoroutineScopeRule()
+    val coroutineRule = MainCoroutineRule()
+
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
@@ -35,10 +38,10 @@ class MainViewModelTest {
     @Before
     fun setup() {
         subject = MainViewModel(
-                TitleRepository(
-                        MainNetworkFake("OK"),
-                        TitleDaoFake("initial")
-                ))
+            TitleRepository(
+                MainNetworkFake("OK"),
+                TitleDaoFake("initial")
+            ))
     }
 
     @Test
