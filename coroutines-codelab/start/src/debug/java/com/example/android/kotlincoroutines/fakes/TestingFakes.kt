@@ -27,6 +27,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import okhttp3.Request
+import okio.Timeout
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -46,7 +47,7 @@ class TitleDaoFake(initialTitle: String) : TitleDao {
     private val insertedForNext = Channel<Title>(capacity = Channel.BUFFERED)
 
     override fun insertTitle(title: Title) {
-        insertedForNext.offer(title)
+        insertedForNext.trySend(title)
         _titleLiveData.value = title
     }
 
@@ -143,6 +144,10 @@ class FakeCallForRetrofit<T> : Call<T> {
 
     override fun request(): Request {
         TODO("Not implemented")
+    }
+
+    override fun timeout(): Timeout {
+        TODO("Not yet implemented")
     }
 
 }
