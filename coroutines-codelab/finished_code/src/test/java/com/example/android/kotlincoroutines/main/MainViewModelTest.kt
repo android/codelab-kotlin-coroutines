@@ -20,12 +20,14 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.android.kotlincoroutines.fakes.MainNetworkCompletableFake
 import com.example.android.kotlincoroutines.fakes.MainNetworkFake
 import com.example.android.kotlincoroutines.fakes.TitleDaoFake
-import com.example.android.kotlincoroutines.main.utils.MainCoroutineScopeRule
+import com.example.android.kotlincoroutines.main.utils.MainCoroutineRule
 import com.example.android.kotlincoroutines.main.utils.captureValues
 import com.example.android.kotlincoroutines.main.utils.getValueForTest
-import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runTest
 import okhttp3.MediaType
 import okhttp3.ResponseBody
 import org.junit.Before
@@ -36,6 +38,7 @@ import org.junit.runners.JUnit4
 import retrofit2.HttpException
 import retrofit2.Response
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
 class MainViewModelTest {
 
@@ -43,25 +46,25 @@ class MainViewModelTest {
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
     @get:Rule
-    val coroutineScope = MainCoroutineScopeRule()
+    val coroutineRule = MainCoroutineRule(UnconfinedTestDispatcher())
 
     lateinit var subject: MainViewModel
 
     @Before
     fun setup() {
         subject = MainViewModel(
-                TitleRepository(
-                        MainNetworkFake("OK"),
-                        TitleDaoFake("initial")
-                ))
+            TitleRepository(
+                MainNetworkFake("OK"),
+                TitleDaoFake("initial")
+            ))
     }
 
     @Test
-    fun whenMainClicked_updatesTaps() {
+    fun whenMainClicked_updatesTaps() = runTest {
         subject.onMainViewClicked()
-        Truth.assertThat(subject.taps.getValueForTest()).isEqualTo("0 taps")
-        coroutineScope.advanceTimeBy(1000)
-        Truth.assertThat(subject.taps.getValueForTest()).isEqualTo("1 taps")
+        assertThat(subject.taps.getValueForTest()).isEqualTo("0 taps")
+        advanceTimeBy(1001)
+        assertThat(subject.taps.getValueForTest()).isEqualTo("1 taps")
     }
 
     @Test
@@ -70,14 +73,14 @@ class MainViewModelTest {
     }
 
     @Test
-    fun whenSuccessfulTitleLoad_itShowsAndHidesSpinner() = coroutineScope.runBlockingTest {
+    fun whenSuccessfulTitleLoad_itShowsAndHidesSpinner() = runTest {
         val network = MainNetworkCompletableFake()
 
         subject = MainViewModel(
-                TitleRepository(
-                        network,
-                        TitleDaoFake("title")
-                )
+            TitleRepository(
+                network,
+                TitleDaoFake("title")
+            )
         )
 
         subject.spinner.captureValues {
@@ -89,13 +92,13 @@ class MainViewModelTest {
     }
 
     @Test
-    fun whenErrorTitleReload_itShowsErrorAndHidesSpinner() = coroutineScope.runBlockingTest {
+    fun whenErrorTitleReload_itShowsErrorAndHidesSpinner() = runTest {
         val network = MainNetworkCompletableFake()
         subject = MainViewModel(
-                TitleRepository(
-                        network,
-                        TitleDaoFake("title")
-                )
+            TitleRepository(
+                network,
+                TitleDaoFake("title")
+            )
         )
 
         subject.spinner.captureValues {
@@ -108,13 +111,13 @@ class MainViewModelTest {
     }
 
     @Test
-    fun whenErrorTitleReload_itShowsErrorText() = coroutineScope.runBlockingTest {
+    fun whenErrorTitleReload_itShowsErrorText() = runTest {
         val network = MainNetworkCompletableFake()
         subject = MainViewModel(
-                TitleRepository(
-                        network,
-                        TitleDaoFake("title")
-                )
+            TitleRepository(
+                network,
+                TitleDaoFake("title")
+            )
         )
 
         subject.onMainViewClicked()
@@ -125,13 +128,13 @@ class MainViewModelTest {
     }
 
     @Test
-    fun whenMainViewClicked_titleIsRefreshed() = coroutineScope.runBlockingTest {
+    fun whenMainViewClicked_titleIsRefreshed() = runTest {
         val titleDao = TitleDaoFake("title")
         subject = MainViewModel(
-                TitleRepository(
-                        MainNetworkFake("OK"),
-                        titleDao
-                )
+            TitleRepository(
+                MainNetworkFake("OK"),
+                titleDao
+            )
         )
         subject.onMainViewClicked()
         assertThat(titleDao.nextInsertedOrNull()).isEqualTo("OK")
@@ -139,10 +142,10 @@ class MainViewModelTest {
 
     private fun makeErrorResult(result: String): HttpException {
         return HttpException(Response.error<String>(
-                500,
-                ResponseBody.create(
-                        MediaType.get("application/json"),
-                        "\"$result\"")
+            500,
+            ResponseBody.create(
+                MediaType.get("application/json"),
+                "\"$result\"")
         ))
     }
 }
