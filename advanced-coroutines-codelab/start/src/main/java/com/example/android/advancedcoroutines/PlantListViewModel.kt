@@ -71,7 +71,7 @@ class PlantListViewModel internal constructor(
     }
 
     init {
-        // When creating a new ViewModel, clear the grow zone and perform any related udpates
+        // When creating a new ViewModel, clear the grow zone and perform any related updates
         clearGrowZoneNumber()
     }
 
