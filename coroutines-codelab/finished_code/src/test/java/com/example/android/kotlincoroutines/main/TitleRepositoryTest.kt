@@ -53,7 +53,8 @@ class TitleRepositoryTest {
         val network = MainNetworkCompletableFake()
         val subject = TitleRepository(
                 network,
-                TitleDaoFake("title")
+                TitleDaoFake("title"),
+                coroutineScope.testDispatcher
         )
 
         launch {

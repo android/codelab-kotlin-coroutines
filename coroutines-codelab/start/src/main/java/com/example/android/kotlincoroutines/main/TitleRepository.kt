@@ -21,6 +21,7 @@ import androidx.lifecycle.map
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 
 /**
  * TitleRepository provides an interface to fetch a title or request a new one be generated.
@@ -53,12 +54,12 @@ class TitleRepository(
             // Make network request using a blocking call (which will block one of the
             // threads in the IO dispatcher)
             try {
-                val result: String = network.fetchNextTitle()
-                // Save it to database
+                val result = withTimeout(5_000) {
+                    network.fetchNextTitle()
+                }
                 titleDao.insertTitle(Title(result))
-            } catch (cause: Throwable) {
-                // If the network throws an exception, inform the caller
-                throw TitleRefreshError("Unable to refresh title", cause)
+            } catch (error: Throwable) {
+                throw TitleRefreshError("Unable to refresh title", error)
             }
         }
     }
@@ -71,8 +72,3 @@ class TitleRepository(
  * @property cause the original cause of this exception
  */
 class TitleRefreshError(message: String, cause: Throwable?) : Throwable(message, cause)
-
-interface TitleRefreshCallback {
-    fun onCompleted()
-    fun onError(cause: Throwable)
-}
