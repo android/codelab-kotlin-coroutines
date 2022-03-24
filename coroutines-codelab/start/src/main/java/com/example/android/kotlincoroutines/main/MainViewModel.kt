@@ -123,11 +123,16 @@ class MainViewModel(private val repository: TitleRepository) : ViewModel() {
     /**
      * Refresh the title, showing a loading spinner while it refreshes and errors via snackbar.
      */
-    fun refreshTitle() {
+    fun refreshTitle() = launchDataLoad {
+        repository.refreshTitle()
+    }
+
+
+    private fun launchDataLoad(loadData: suspend () -> Unit) {
         viewModelScope.launch {
             try {
                 _spinner.value = true
-                repository.refreshTitle()
+                loadData()
             } catch (error: TitleRefreshError) {
                 _snackBar.value = error.message
             } finally {
