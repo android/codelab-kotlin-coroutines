@@ -22,11 +22,14 @@ import com.example.android.kotlincoroutines.fakes.TitleDaoFake
 import com.example.android.kotlincoroutines.main.utils.MainCoroutineRule
 import com.example.android.kotlincoroutines.main.utils.getValueForTest
 import com.google.common.truth.Truth
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
 class MainViewModelTest {
+    @ExperimentalCoroutinesApi
     @get:Rule
     val coroutineScope = MainCoroutineRule()
     @get:Rule
@@ -39,15 +42,16 @@ class MainViewModelTest {
         subject = MainViewModel(
                 TitleRepository(
                         MainNetworkFake("OK"),
-                        TitleDaoFake("initial")
+                        TitleDaoFake("initial"),
+                        coroutineScope.testDispatcher,
                 ))
     }
 
     @Test
-    fun whenMainClicked_updatesTaps() {
+    fun whenMainClicked_updatesTaps() = runTest {
         subject.onMainViewClicked()
         Truth.assertThat(subject.taps.getValueForTest()).isEqualTo("0 taps")
-        coroutineScope.testDispatcher.scheduler.apply {
+        testScheduler.apply {
             advanceTimeBy(1000)
             runCurrent()
             Truth.assertThat(subject.taps.getValueForTest()).isEqualTo("1 taps")

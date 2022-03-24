@@ -22,12 +22,14 @@ import com.example.android.kotlincoroutines.fakes.MainNetworkFake
 import com.example.android.kotlincoroutines.fakes.TitleDaoFake
 import com.example.android.kotlincoroutines.main.utils.MainCoroutineRule
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
 
 class TitleRepositoryTest {
+    @ExperimentalCoroutinesApi
     @get:Rule
     val coroutineScope = MainCoroutineRule()
 
@@ -58,11 +60,9 @@ class TitleRepositoryTest {
             subject.refreshTitle()
         }
 
-        coroutineScope.testDispatcher
-            .scheduler
-            .apply {
-                advanceTimeBy(5_000)
-                runCurrent()
-            }
+        testScheduler.apply {
+            advanceTimeBy(5_000)
+            runCurrent()
+        }
     }
 }

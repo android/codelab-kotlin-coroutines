@@ -23,8 +23,8 @@ import com.example.android.kotlincoroutines.fakes.TitleDaoFake
 import com.example.android.kotlincoroutines.main.utils.MainCoroutineRule
 import com.example.android.kotlincoroutines.main.utils.captureValues
 import com.example.android.kotlincoroutines.main.utils.getValueForTest
-import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import okhttp3.MediaType
 import okhttp3.ResponseBody
@@ -42,10 +42,11 @@ class MainViewModelTest {
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
+    @ExperimentalCoroutinesApi
     @get:Rule
     val coroutineScope = MainCoroutineRule()
 
-    lateinit var subject: MainViewModel
+    private lateinit var subject: MainViewModel
 
     @Before
     fun setup() {
@@ -57,16 +58,14 @@ class MainViewModelTest {
     }
 
     @Test
-    fun whenMainClicked_updatesTaps() {
+    fun whenMainClicked_updatesTaps() = runTest {
         subject.onMainViewClicked()
         assertThat(subject.taps.getValueForTest()).isEqualTo("0 taps")
-        coroutineScope.testDispatcher
-            .scheduler
-            .apply {
-                advanceTimeBy(1000)
-                runCurrent()
-                assertThat(subject.taps.getValueForTest()).isEqualTo("1 taps")
-            }
+        testScheduler.apply {
+            advanceTimeBy(1000)
+            runCurrent()
+            assertThat(subject.taps.getValueForTest()).isEqualTo("1 taps")
+        }
     }
 
     @Test
