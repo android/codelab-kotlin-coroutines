@@ -102,7 +102,7 @@ class PlantListViewModel internal constructor(
     }
 
     /**
-     * Return true iff the current list is filtered.
+     * Return true if the current list is filtered.
      */
     fun isFiltered() = growZone.value != NoGrowZone
 
